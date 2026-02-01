@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Mix Balancer - Hotdorgs Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Markdown Parser for AI response -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
+        .leetify-gradient { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+        .ai-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); }
+        .card-dark { background-color: #1e293b; border: 1px solid #334155; }
+        
+        /* Animations */
+        .loader-lg { border: 5px solid #334155; border-radius: 50%; border-top: 5px solid #3b82f6; width: 60px; height: 60px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        .loader-ai { border: 4px solid #4c1d95; border-radius: 50%; border-top: 4px solid #d946ef; width: 40px; height: 40px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Markdown Styles */
+        .prose strong { color: #fff; font-weight: 700; }
+        .prose p { margin-bottom: 0.5rem; color: #cbd5e1; }
+        .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <div class="w-full bg-slate-900 border-b border-slate-800 p-4 flex justify-end items-center gap-4">
+        <div id="userInfo" class="hidden text-xs text-green-400 font-mono items-center gap-2">
+            <i class="fas fa-user-shield"></i> Admin Logado
+        </div>
+        <button onclick="attemptOpenConfig()" class="text-slate-400 hover:text-white transition flex items-center gap-2 text-sm">
+            <i class="fas fa-cog"></i> Configurações
+        </button>
+    </div>
+
+    <div class="flex-grow max-w-5xl mx-auto px-4 pt-8 pb-12 w-full">
+        <!-- Header -->
+        <div class="text-center mb-8 relative">
+            <h1 class="text-4xl font-extrabold tracking-tight mb-2">
+                <span class="text-blue-500">CS2</span> MIX ONLINE
+            </h1>
+            <p class="text-slate-400">Lobby colaborativo - Powered by <span class="text-blue-400 font-bold">Hotdorgs</span></p>
+            <div id="connectionStatus" class="absolute top-0 right-0 text-xs text-slate-500 flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-red-500" id="statusDot"></div>
+                <span id="statusText">Off</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Player List Section -->
+            <div class="lg:col-span-2">
+                <div class="card-dark rounded-xl p-6 shadow-2xl relative">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-xl font-bold flex items-center">
+                                <i class="fas fa-users mr-2 text-blue-500"></i>
+                                Lobby (<span id="playerCount">0</span>/10)
+                            </h2>
+                            <button onclick="manualRefresh()" class="text-slate-500 hover:text-white transition flex items-center gap-2 bg-slate-800 px-3 py-1 rounded border border-slate-700 hover:border-slate-500" title="Atualizar Lista">
+                                <i class="fas fa-sync-alt" id="refreshIcon"></i> <span class="text-xs">Recarregar</span>
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <button onclick="openJoinModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-bold text-sm transition shadow-lg flex items-center shadow-emerald-500/20" title="Adicionar jogador manualmente">
+                                <i class="fas fa-user-plus mr-2"></i> + ADD PLAYER
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="playersList" class="space-y-2 min-h-[300px]">
+                        <div class="flex flex-col items-center justify-center h-full text-slate-500 opacity-50 mt-10">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>Carregando lobby...</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t border-slate-700 space-y-3">
+                        <div class="flex items-center justify-center gap-2 mb-1 p-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Modo de Separação:</span>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="useAiToggle" class="sr-only peer">
+                                <div class="relative w-11 h-6 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                <span class="ms-3 text-sm font-bold text-slate-300 flex items-center gap-2 peer-checked:text-purple-400 transition-colors">
+                                    <i class="fas fa-robot"></i> Usar IA (Fast Mode)
+                                </span>
+                            </label>
+                        </div>
+
+                        <button onclick="balanceTeams()" id="balanceBtn" class="w-full leetify-gradient hover:opacity-90 py-3 rounded-lg font-bold text-lg transition shadow-lg transform active:scale-[0.98] flex items-center justify-center">
+                            <span id="btnText"><i class="fas fa-balance-scale mr-2"></i> EQUILIBRAR TIMES</span>
+                        </button>
+                        
+                        <div class="flex gap-3">
+                            <button onclick="clearResults()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-2 rounded-lg font-bold text-sm transition border border-slate-600" title="Apaga os times gerados da tela">
+                                <i class="fas fa-undo mr-2"></i> LIMPAR TIMES DA TELA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="lg:col-span-1">
+                <div id="resultsArea" class="hidden space-y-4">
+                    <h2 class="text-xl font-bold text-center mb-2">Resultado do Sorteio</h2>
+                    <p class="text-center text-xs text-slate-500 mb-2" id="diffDisplay">Calculando...</p>
+                    
+                    <div class="card-dark rounded-xl overflow-hidden border-t-4 border-blue-500">
+                        <div class="bg-blue-500/10 p-3 flex justify-between items-center">
+                            <span class="font-bold text-blue-400">TIME A</span>
+                            <span id="scoreA" class="text-sm font-mono bg-blue-500 text-white px-2 py-0.5 rounded">Avg: 0.00</span>
+                        </div>
+                        <div id="listA" class="p-4 space-y-2 text-sm"></div>
+                    </div>
+
+                    <div class="card-dark rounded-xl overflow-hidden border-t-4 border-orange-500">
+                        <div class="bg-orange-500/10 p-3 flex justify-between items-center">
+                            <span class="font-bold text-orange-400">TIME B</span>
+                            <span id="scoreB" class="text-sm font-mono bg-orange-500 text-white px-2 py-0.5 rounded">Avg: 0.00</span>
+                        </div>
+                        <div id="listB" class="p-4 space-y-2 text-sm"></div>
+                    </div>
+
+                    <!-- Botão Coach IA Desabilitado -->
+                    <button id="coachBtn" disabled class="w-full bg-slate-700/50 text-slate-500 py-3 rounded-lg font-bold cursor-not-allowed border border-slate-600/50 flex items-center justify-center">
+                        <i class="fas fa-tools mr-2"></i> COACH IA (EM DESENVOLVIMENTO)
+                    </button>
+
+                    <button onclick="copyTeams()" class="w-full bg-slate-700 hover:bg-slate-600 py-3 rounded-lg font-bold transition flex items-center justify-center border border-slate-600">
+                        <i class="fab fa-discord mr-2"></i> COPIAR TIMES
+                    </button>
+                </div>
+
+                <div id="placeholderResult" class="card-dark rounded-xl p-8 border-dashed border-2 border-slate-700 flex flex-col items-center justify-center text-slate-500 h-64">
+                    <i class="fas fa-chess-board text-4xl mb-4 opacity-20"></i>
+                    <p class="text-center italic text-sm">Aguardando jogadores...<br>Necessário 10 para equilibrar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-auto">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-xs uppercase tracking-widest font-bold mb-3">Patrocínio & Apoio</p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">H</div>
+                    <span class="font-bold text-white text-lg">HOTDORGS</span>
+                </div>
+                <a href="https://www.instagram.com/cesar.kali/" target="_blank" class="flex items-center gap-2 text-slate-400 hover:text-pink-500 transition group">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-pink-500/20 transition">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </div>
+                    <span class="text-sm font-medium">@cesar.kali</span>
+                </a>
+                <a href="https://steamcommunity.com/id/hotdorgs" target="_blank" class="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition group">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-blue-500/20 transition">
+                        <i class="fab fa-steam text-xl"></i>
+                    </div>
+                    <span class="text-sm font-medium">/id/hotdorgs</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAIS -->
+    <div id="loadingModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[90] backdrop-blur-sm flex-col">
+        <div class="loader-lg mb-6"></div>
+        <h2 id="loadingTitle" class="text-center text-white text-2xl font-bold tracking-tight">Calculando...</h2>
+        <p id="loadingSub" class="text-slate-400 text-sm mt-2 font-mono">Buscando equilíbrio perfeito...</p>
+    </div>
+
+    <!-- Modal Login Admin (Firebase Auth) -->
+    <div id="loginModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[105] backdrop-blur-sm">
+        <div class="bg-slate-800 p-6 rounded-xl w-full max-w-xs border border-slate-700 shadow-2xl">
+            <h3 class="text-lg font-bold mb-4 text-white text-center"><i class="fas fa-lock text-red-500 mr-2"></i> Login de Admin</h3>
+            <p class="text-xs text-slate-400 mb-4 text-center">Use as credenciais do projeto.</p>
+            <div class="space-y-3 mb-4">
+                <input type="text" id="adminUser" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white text-sm outline-none focus:border-red-500" placeholder="Usuário (ex: hotdorgs)">
+                <input type="password" id="adminPass" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white text-sm outline-none focus:border-red-500" placeholder="Senha">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="checkLogin()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold transition text-sm">ENTRAR</button>
+                <button onclick="closeLoginModal()" class="px-3 py-2 text-slate-400 hover:text-white transition text-sm">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Configurações -->
+    <div id="configModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100] backdrop-blur-sm overflow-y-auto">
+        <div class="bg-slate-800 p-6 rounded-xl w-full max-w-md border border-slate-700 shadow-2xl my-8">
+            <h3 class="text-xl font-bold mb-4 text-white"><i class="fas fa-cog text-slate-400 mr-2"></i> Configurações</h3>
+            <div class="space-y-6 mb-6">
+                <div>
+                    <label class="block text-xs font-bold text-purple-400 mb-1 uppercase"><i class="fas fa-robot mr-1"></i> Gemini API Key (IA)</label>
+                    <input type="password" id="cfgApiKey" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white text-sm focus:border-purple-500 outline-none" placeholder="Cole sua chave do AI Studio...">
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="saveConfig()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold transition">SALVAR E RECARREGAR</button>
+                <button onclick="closeConfigModal()" class="px-4 py-2 text-slate-400 hover:text-white transition">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[95] backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-purple-500/50 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-900 to-slate-900 p-4 border-b border-purple-500/30 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-xl text-white flex items-center gap-2"><i class="fas fa-robot text-purple-400"></i> Coach IA</h3>
+                <button onclick="closeAiModal()" class="text-slate-400 hover:text-white transition"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="aiContent" class="p-6 overflow-y-auto text-sm text-slate-300 space-y-4"></div>
+            <div id="aiLoading" class="hidden flex-col items-center justify-center py-10">
+                <div class="loader-ai mb-4"></div>
+                <p class="text-purple-300 animate-pulse font-mono text-sm">Consultando o Coach...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Join/Edit -->
+    <div id="joinModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-slate-800 p-6 rounded-xl w-full max-w-md border border-slate-700 shadow-2xl transform transition-all scale-100 relative">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-user-plus text-blue-500"></i> Adicionar Jogador</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Nick <span class="text-red-500">*</span></label>
+                    <input type="text" id="inputName" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 focus:border-blue-500 outline-none text-white" placeholder="Nick no jogo">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase">Link do Perfil</label>
+                    <input type="text" id="inputUrl" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 focus:border-blue-500 outline-none text-sm text-blue-400" placeholder="https://leetify.com/app/profile/...">
+                </div>
+                
+                <!-- Rating com Botão de Ajuda -->
+                <div class="bg-slate-900/50 p-3 rounded border border-slate-700">
+                    <div class="flex justify-between items-end mb-2">
+                        <label class="block text-xs font-bold text-slate-400 uppercase">Leetify Rating</label>
+                        <button type="button" onclick="openHelpModal()" class="text-[10px] bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-2 py-1 rounded transition flex items-center gap-1 cursor-pointer">
+                            <i class="fas fa-question-circle"></i> Onde encontrar?
+                        </button>
+                    </div>
+                    <input type="number" id="inputRating" step="0.01" class="flex-1 w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 focus:border-blue-500 outline-none font-mono text-lg text-white" placeholder="+0.00">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="savePlayer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded font-bold transition">SALVAR</button>
+                <button onclick="closeJoinModal()" class="px-4 py-2 text-slate-400 hover:text-white transition">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ajuda -->
+    <div id="helpModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[120] backdrop-blur-sm">
+        <div class="bg-slate-800 p-6 rounded-xl w-full max-w-sm border border-slate-600 shadow-2xl relative">
+            <button onclick="closeHelpModal()" class="absolute top-3 right-3 text-slate-400 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
+                <i class="fas fa-search text-blue-500"></i>
+                Como ver seu Rating
+            </h3>
+            
+            <div class="space-y-4 text-sm text-slate-300">
+                <div class="flex gap-3">
+                    <div class="bg-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 text-white">1</div>
+                    <p>Acesse seu perfil no Leetify.</p>
+                </div>
+                <div class="flex gap-3">
+                    <div class="bg-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 text-white">2</div>
+                    <p>No topo, localize o <strong>Leetify Rating</strong> (+1.52, -0.80, etc).</p>
+                </div>
+                
+                <div class="bg-black/40 p-3 rounded border border-slate-700 flex flex-col items-center gap-2 mt-2">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Exemplo</span>
+                    <div class="flex items-center gap-2 bg-slate-800 px-4 py-2 rounded border border-slate-600 shadow-inner">
+                        <span class="text-green-400 font-mono font-bold text-lg">+1.52</span>
+                        <div class="flex flex-col">
+                            <span class="text-[8px] text-slate-500 uppercase leading-none">Leetify</span>
+                            <span class="text-[8px] text-slate-400 uppercase leading-none">Rating</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 space-y-2">
+                <a href="https://leetify.com/profile/" target="_blank" class="block w-full bg-emerald-600 hover:bg-emerald-500 text-white text-center py-2 rounded font-bold transition shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-external-link-alt"></i> Abrir Leetify
+                </a>
+                <button onclick="closeHelpModal()" class="block w-full text-slate-400 hover:text-white text-xs py-2 transition border border-transparent hover:border-slate-600 rounded">
+                    Voltar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="msgModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[110] backdrop-blur-sm">
+        <div class="bg-slate-800 p-6 rounded-xl w-full max-w-sm border border-slate-600 shadow-2xl text-center">
+            <p id="msgText" class="text-white mb-6 font-medium">Mensagem.</p>
+            <button onclick="document.getElementById('msgModal').classList.add('hidden'); document.getElementById('msgModal').classList.remove('flex');" class="bg-blue-600 text-white px-6 py-2 rounded font-bold w-full">OK</button>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[115] backdrop-blur-sm">
+        <div class="bg-slate-800 p-6 rounded-xl w-full max-w-sm border border-slate-600 shadow-2xl scale-100 transition-all">
+            <h3 class="text-xl font-bold mb-2 text-white flex items-center"><i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i> Confirmação</h3>
+            <p id="confirmMessage" class="text-slate-300 mb-6 text-sm">Tem certeza?</p>
+            <div class="flex gap-3">
+                <button id="btnConfirmYes" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded font-bold transition">SIM</button>
+                <button onclick="closeConfirmModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded font-bold transition">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, getDocs, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =============================================================================
+        // CONFIGURAÇÃO FIREBASE & VARS GLOBAIS
+        // =============================================================================
+        
+        let db, auth, appId, collectionRef;
+        let confirmCallback = null; 
+        let isAdmin = false; 
+        
+        // Chave Padrão (Fallback)
+        const defaultGeminiKey = "AIzaSyDJXlQKmGgT4OrfSej9g8LsZYsC1p_2IDk";
+
+        // CONFIGURAÇÃO HARDCODED DO USUÁRIO
+        const manualFirebaseConfig = {
+            apiKey: "AIzaSyCweAYYW0_dV8iy9Zc3j3RWgJPrfIYaUP0",
+            authDomain: "cs2mix.firebaseapp.com",
+            projectId: "cs2mix",
+            storageBucket: "cs2mix.firebasestorage.app",
+            messagingSenderId: "1022628125916",
+            appId: "1:1022628125916:web:50866d4b31b618e8342819",
+            measurementId: "G-B8FZSQ47GM"
+        };
+
+        // Estado local
+        let players = [];
+        let lastGeneratedTeams = null;
+        let generatedHistory = new Set(); 
+        let currentMatch = null;
+
+        function getGeminiKey() {
+            const key = localStorage.getItem('cs2_gemini_key') || defaultGeminiKey;
+            return key;
+        }
+
+        // =============================================================================
+        // INICIALIZAÇÃO
+        // =============================================================================
+
+        async function init() {
+            const app = initializeApp(manualFirebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            appId = 'cs2mix'; 
+
+            try {
+                if (!auth.currentUser) {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.warn("Auth inicial falhou, aguardando interação...", e);
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if(user) {
+                    isAdmin = (user.email === 'hotdorgs@cs2mix.com');
+                    document.getElementById('statusText').innerText = isAdmin ? "Admin" : "Online";
+                    document.getElementById('statusDot').classList.replace('bg-red-500', 'bg-green-500');
+                    if(isAdmin) {
+                        document.getElementById('userInfo').classList.remove('hidden');
+                        document.getElementById('userInfo').classList.add('flex');
+                    }
+                    setupListener();
+                    setupMatchListener();
+                }
+            });
+
+            document.getElementById('cfgApiKey').value = getGeminiKey();
+        }
+
+        function getMatchDocRef() {
+            if (typeof __firebase_config !== 'undefined' && !manualFirebaseConfig.apiKey && !localStorage.getItem('cs2_firebase_conf')) {
+                 return doc(db, 'artifacts', appId, 'public', 'data', 'match_state_current');
+            } else {
+                 return doc(db, 'matches', 'current');
+            }
+        }
+
+        function getCollectionRef() {
+            if (typeof __firebase_config !== 'undefined' && !manualFirebaseConfig.apiKey && !localStorage.getItem('cs2_firebase_conf')) {
+                 return collection(db, 'artifacts', appId, 'public', 'data', 'players');
+            } else {
+                 return collection(db, 'players'); 
+            }
+        }
+
+        function setupListener() {
+            const colRef = getCollectionRef();
+            const q = query(colRef);
+            onSnapshot(q, (snapshot) => {
+                players = [];
+                snapshot.forEach(d => players.push({ id: d.id, ...d.data() }));
+                renderList();
+            });
+        }
+
+        function setupMatchListener() {
+            const docRef = getMatchDocRef();
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    currentMatch = data; 
+                    
+                    if (!data.teamA || data.teamA.length === 0) {
+                        document.getElementById('resultsArea').classList.add('hidden');
+                        document.getElementById('placeholderResult').classList.remove('hidden');
+                        return;
+                    }
+
+                    const avgA = data.teamA.reduce((a,b)=>a+b.rating,0)/5;
+                    const avgB = data.teamB.reduce((a,b)=>a+b.rating,0)/5;
+                    
+                    displayResults(data.teamA, data.teamB, avgA, avgB);
+                } else {
+                    document.getElementById('resultsArea').classList.add('hidden');
+                    document.getElementById('placeholderResult').classList.remove('hidden');
+                }
+            });
+        }
+
+        // =============================================================================
+        // UI HELPERS
+        // =============================================================================
+
+        window.openHelpModal = function() {
+            document.getElementById('helpModal').classList.remove('hidden');
+            document.getElementById('helpModal').classList.add('flex');
+        };
+
+        window.closeHelpModal = function() {
+            document.getElementById('helpModal').classList.add('hidden');
+            document.getElementById('helpModal').classList.remove('flex');
+        };
+
+        window.closeAiModal = function() {
+            document.getElementById('aiModal').classList.add('hidden');
+            document.getElementById('aiModal').classList.remove('flex');
+        }
+
+        window.openJoinModal = function() {
+            document.getElementById('inputName').value = "";
+            document.getElementById('inputUrl').value = "";
+            document.getElementById('inputRating').value = "";
+            document.getElementById('joinModal').classList.remove('hidden');
+            document.getElementById('joinModal').classList.add('flex');
+        }
+
+        window.closeJoinModal = function() {
+            document.getElementById('joinModal').classList.add('hidden');
+            document.getElementById('joinModal').classList.remove('flex');
+        }
+
+        window.showAlert = function(txt) {
+            document.getElementById('msgText').innerText = txt;
+            document.getElementById('msgModal').classList.remove('hidden');
+            document.getElementById('msgModal').classList.add('flex');
+        }
+
+        window.showConfirm = function(msg, callback) {
+            document.getElementById('confirmMessage').innerText = msg;
+            confirmCallback = callback;
+            document.getElementById('confirmModal').classList.remove('hidden');
+            document.getElementById('confirmModal').classList.add('flex');
+        }
+
+        window.closeConfirmModal = function() {
+            confirmCallback = null;
+            document.getElementById('confirmModal').classList.add('hidden');
+            document.getElementById('confirmModal').classList.remove('flex');
+        }
+
+        document.getElementById('btnConfirmYes').onclick = function() {
+            if (confirmCallback) confirmCallback();
+            closeConfirmModal();
+        };
+
+        window.closeLoginModal = function() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('flex');
+        }
+
+        window.openConfigModal = function() {
+            document.getElementById('configModal').classList.remove('hidden');
+            document.getElementById('configModal').classList.add('flex');
+        }
+
+        window.closeConfigModal = function() {
+            document.getElementById('configModal').classList.add('hidden');
+            document.getElementById('configModal').classList.remove('flex');
+        }
+
+        window.attemptOpenConfig = function() {
+            if (isAdmin) {
+                openConfigModal();
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+                document.getElementById('loginModal').classList.add('flex');
+            }
+        }
+
+        window.checkLogin = async function() {
+            const u = document.getElementById('adminUser').value.trim();
+            const p = document.getElementById('adminPass').value.trim();
+            const btn = event.target;
+            const email = u.includes('@') ? u : `${u}@cs2mix.com`;
+
+            btn.innerText = "Verificando...";
+            btn.disabled = true;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, p);
+                closeLoginModal();
+                openConfigModal();
+                document.getElementById('adminUser').value = "";
+                document.getElementById('adminPass').value = "";
+            } catch (error) {
+                console.error(error);
+                let msg = "Erro ao logar.";
+                if(error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+                    msg = "Usuário ou senha incorretos.";
+                }
+                showAlert(msg);
+            } finally {
+                btn.innerText = "ENTRAR";
+                btn.disabled = false;
+            }
+        }
+
+        // =============================================================================
+        // LÓGICA DE BALANCEAMENTO
+        // =============================================================================
+
+        function getCombinations(array, size) {
+            let result = [];
+            function helper(start, combo) {
+                if (combo.length === size) { result.push(combo); return; }
+                for (let i = start; i < array.length; i++) helper(i + 1, [...combo, array[i]]);
+            }
+            helper(0, []);
+            return result;
+        }
+
+        window.balanceTeams = function() {
+            if (players.length !== 10) return showAlert("Precisa de exatamente 10 jogadores!");
+            
+            const useAi = document.getElementById('useAiToggle').checked;
+            document.getElementById('loadingModal').classList.remove('hidden');
+            document.getElementById('loadingModal').classList.add('flex');
+
+            if (useAi) {
+                performAiBalance(); // IA Otimizada
+            } else {
+                setTimeout(performMathBalance, 500); // Matemático
+            }
+        }
+
+        function performMathBalance() {
+            const pool = players.slice(0, 10);
+            const totalRating = pool.reduce((acc, p) => acc + p.rating, 0);
+            const targetRating = totalRating / 2;
+            const allCombos = getCombinations(pool, 5);
+            
+            const candidates = allCombos.map(teamA => {
+                const ratingA = teamA.reduce((acc, p) => acc + p.rating, 0);
+                const diff = Math.abs(targetRating - ratingA);
+                const ids = teamA.map(p => p.id).sort().join('|'); 
+                return { teamA, ratingA, diff, ids };
+            });
+
+            candidates.sort((a, b) => a.diff - b.diff);
+            const bestPossibleDiff = candidates[0].diff;
+            const tolerance = 0.5; 
+            let elitePool = candidates.filter(c => c.diff <= (bestPossibleDiff + tolerance));
+            let finalPool = elitePool.filter(c => !generatedHistory.has(c.ids));
+
+            if (finalPool.length === 0) {
+                generatedHistory.clear();
+                finalPool = elitePool;
+            }
+
+            const selected = finalPool[Math.floor(Math.random() * finalPool.length)];
+            generatedHistory.add(selected.ids);
+
+            const teamA = selected.teamA;
+            const teamB = pool.filter(p => !teamA.some(a => a.id === p.id));
+            
+            saveMatchToFirebase(teamA, teamB);
+        }
+
+        async function performAiBalance() {
+            const apiKey = getGeminiKey();
+            const promptText = `
+            Task: Divide 10 players into two balanced teams (5v5) for Counter-Strike 2 based on rating.
+            Players: ${players.map(p => `{"id":"${p.id}", "rating":${p.rating}}`).join(', ')}
+            Instructions:
+            1. Sum of ratings for Team A should be as close as possible to Team B.
+            2. Return ONLY valid JSON. No markdown. No explanations.
+            Format: {"teamA_ids": ["id1",...], "teamB_ids": ["id6",...]}
+            `;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: { 
+                            responseMimeType: "application/json",
+                            temperature: 0.1 
+                        },
+                        // SAFETY SETTINGS
+                        safetySettings: [
+                            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+                            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+                            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_ONLY_HIGH" },
+                            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" }
+                        ]
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts) {
+                    throw new Error("IA retornou estrutura inválida.");
+                }
+
+                let jsonText = data.candidates[0].content.parts[0].text;
+                jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const json = JSON.parse(jsonText);
+                
+                const teamA = json.teamA_ids.map(id => players.find(p => p.id === id)).filter(Boolean);
+                const teamB = json.teamB_ids.map(id => players.find(p => p.id === id)).filter(Boolean);
+
+                if(teamA.length !== 5) throw new Error("IA retornou times incompletos.");
+                saveMatchToFirebase(teamA, teamB);
+
+            } catch (e) {
+                console.error("Erro IA:", e);
+                showAlert("Erro na IA (" + e.message + "). Usando método matemático.");
+                performMathBalance();
+            }
+        }
+
+        async function saveMatchToFirebase(teamA, teamB) {
+            try {
+                const docRef = getMatchDocRef();
+                await setDoc(docRef, {
+                    teamA: teamA,
+                    teamB: teamB,
+                    timestamp: new Date().toISOString(),
+                    analysis: null 
+                });
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('loadingModal').classList.remove('flex');
+            } catch (e) {
+                console.error("Erro ao salvar partida:", e);
+                showAlert("Erro ao salvar partida no banco. Modo offline?");
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('loadingModal').classList.remove('flex');
+                const avgA = teamA.reduce((a,b)=>a+b.rating,0)/5;
+                const avgB = teamB.reduce((a,b)=>a+b.rating,0)/5;
+                displayResults(teamA, teamB, avgA, avgB);
+            }
+        }
+
+        function displayResults(a, b, avgA, avgB) {
+            lastGeneratedTeams = { a, b, avgA, avgB }; 
+            a.sort((x,y) => y.rating - x.rating);
+            b.sort((x,y) => y.rating - x.rating);
+
+            document.getElementById('resultsArea').classList.remove('hidden');
+            document.getElementById('placeholderResult').classList.add('hidden');
+            
+            document.getElementById('scoreA').innerText = `Média: ${avgA.toFixed(2)}`;
+            document.getElementById('scoreB').innerText = `Média: ${avgB.toFixed(2)}`;
+
+            const diff = Math.abs(avgA - avgB);
+            const diffDisplay = document.getElementById('diffDisplay');
+            diffDisplay.innerText = `Diferença Média: ${diff.toFixed(2)}`;
+            diffDisplay.className = diff < 1 ? "text-center text-xs text-emerald-400 font-bold mb-2" : "text-center text-xs text-yellow-400 font-bold mb-2";
+
+            const row = (p) => `<div class="flex justify-between border-b border-slate-700/50 py-1 last:border-0"><span class="truncate w-32 font-medium">${p.name}</span><span class="font-mono ${p.rating >= 0 ? 'text-green-400' : 'text-red-400'}">${p.rating > 0 ? '+' : ''}${p.rating.toFixed(2)}</span></div>`;
+            document.getElementById('listA').innerHTML = a.map(row).join('');
+            document.getElementById('listB').innerHTML = b.map(row).join('');
+        }
+
+        // COACH IA DISABLED
+        // window.callGeminiCoach = async function() { ... }
+
+        window.savePlayer = async function() {
+            const name = document.getElementById('inputName').value.trim();
+            let rating = parseFloat(document.getElementById('inputRating').value);
+            const url = document.getElementById('inputUrl').value.trim();
+            if(!name) return showAlert("O Nick é obrigatório");
+            if(isNaN(rating)) rating = 0;
+            const id = 'p_' + Date.now() + Math.random().toString(36).substr(2, 5);
+            try {
+                const colRef = getCollectionRef();
+                await setDoc(doc(colRef, id), { name, rating, url, id });
+                closeJoinModal();
+            } catch(e) { showAlert("Erro ao salvar."); }
+        }
+        
+        window.confirmDeletePlayer = function(id) {
+            showConfirm("Remover este jogador?", async () => {
+                try {
+                    const colRef = getCollectionRef();
+                    await deleteDoc(doc(colRef, id));
+                } catch(e) {
+                    console.error(e);
+                    showAlert("Erro ao remover: " + e.message);
+                }
+            });
+        }
+        
+        window.clearResults = async function() {
+            try {
+                const matchRef = getMatchDocRef();
+                // Opcional: Se quiser limpar para todos, descomente a linha abaixo. 
+                // Se quiser limpar só localmente, apenas esconda a div.
+                // await setDoc(matchRef, { teamA: [], teamB: [], timestamp: null });
+                
+                document.getElementById('resultsArea').classList.add('hidden');
+                document.getElementById('placeholderResult').classList.remove('hidden');
+                generatedHistory.clear();
+            } catch(e) { console.error(e); }
+        }
+        
+        window.manualRefresh = function() { 
+            const icon = document.getElementById('refreshIcon');
+            icon.classList.add('fa-spin');
+            setupListener(); 
+            setupMatchListener();
+            setTimeout(() => icon.classList.remove('fa-spin'), 1000);
+        }
+        
+        window.copyTeams = function() {
+            if (!currentMatch || !currentMatch.teamA) return;
+            const a = currentMatch.teamA.map(p => p.name).join('\n');
+            const b = currentMatch.teamB.map(p => p.name).join('\n');
+            const avgA = currentMatch.teamA.reduce((a,b)=>a+b.rating,0)/5;
+            const avgB = currentMatch.teamB.reduce((a,b)=>a+b.rating,0)/5;
+            const txt = `🏆 **CS2 MIX HOTDORGS**\n\n🔵 **TIME A** (${avgA.toFixed(2)})\n${a}\n\n🟠 **TIME B** (${avgB.toFixed(2)})\n${b}\n\n🔗 Sorteador de times CS2 Hotdorgs`;
+            const el = document.createElement('textarea'); el.value = txt; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            showAlert("Times copiados!");
+        }
+        
+        window.saveConfig = function() {
+            localStorage.setItem('cs2_gemini_key', document.getElementById('cfgApiKey').value);
+            closeConfigModal(); showAlert("Chave Salva!");
+        }
+
+        function renderList() {
+            const list = document.getElementById('playersList');
+            document.getElementById('playerCount').innerText = players.length;
+            if(players.length === 0) { list.innerHTML = `<div class="text-center py-10 opacity-50">Lobby vazio</div>`; return; }
+            
+            list.innerHTML = players.map(p => {
+                const leetifyId = p.url ? p.url.split('/').filter(Boolean).pop() : '-';
+                const linkElem = p.url ? `<a href="${p.url}" target="_blank" class="text-blue-400 hover:text-blue-300 ml-2" title="Abrir Leetify"><i class="fas fa-external-link-alt text-xs"></i></a>` : '';
+                
+                return `
+                <div class="flex justify-between items-center bg-slate-800/50 p-3 rounded mb-2 border border-slate-700">
+                    <div>
+                        <div class="flex items-center font-bold text-white">
+                            ${p.name}
+                            ${linkElem}
+                        </div>
+                        <div class="text-[10px] text-slate-500 font-mono">ID: ${leetifyId}</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <span class="${p.rating >= 0 ? 'text-green-400' : 'text-red-400'} font-mono text-lg">${p.rating > 0 ? '+' : ''}${p.rating.toFixed(2)}</span>
+                        <button onclick="confirmDeletePlayer('${p.id}')" class="text-slate-500 hover:text-red-500 px-2"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        init();
+    </script>
+</body>
+</html>
