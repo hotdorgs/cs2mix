@@ -244,8 +244,9 @@
                         </div>
                         
                         <div class="flex gap-2 w-full sm:w-auto">
-                            <button onclick="manualRefresh()" class="p-2.5 text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-700 rounded-lg border border-slate-700 transition" title="Atualizar">
+                            <button id="btnManualRefresh" onclick="manualRefresh()" class="p-2.5 text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-700 rounded-lg border border-slate-700 transition disabled:opacity-50 disabled:cursor-not-allowed group relative" title="Atualizar (Sincroniza Ratings)">
                                 <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                                <span class="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-black/80 text-[9px] text-white px-2 py-1 rounded hidden group-disabled:block whitespace-nowrap">Atualizando...</span>
                             </button>
                             <button id="btnAddPlayer" onclick="openAddPlayerModal()" class="hidden flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg flex items-center justify-center gap-2">
                                 <i class="fas fa-plus"></i> ADD PLAYER
@@ -272,7 +273,11 @@
                         </div>
 
                         <!-- Actions -->
-                        <div class="flex gap-2 w-full md:w-auto">
+                        <div class="flex gap-2 w-full md:w-auto flex-wrap justify-end">
+                            <label class="flex items-center gap-2 cursor-pointer bg-slate-800/50 px-3 py-2.5 rounded-lg border border-slate-700 hover:bg-slate-700 transition" title="Atualizar ratings antes de sortear">
+                                <input type="checkbox" id="chkAutoUpdate" class="accent-emerald-500 rounded w-4 h-4 cursor-pointer" checked>
+                                <span class="text-xs font-bold text-slate-300">Auto-Update</span>
+                            </label>
                             <button id="btnClear" onclick="clearCurrentMatch()" class="hidden flex-1 md:flex-none px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold border border-slate-700 transition">
                                 LIMPAR
                             </button>
@@ -351,7 +356,7 @@
     <footer class="border-t border-slate-800/50 py-6 mt-auto bg-[#0b0f19]">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center text-[10px] text-slate-600 uppercase tracking-wider">
             <span>&copy; 2026 CS2 Mix Balancer</span>
-            <span class="flex items-center gap-2"><img src="Hot Dorgs.jpg" class="w-6 h-6 rounded-full grayscale opacity-50" alt="HD"><span>hotdorgs Production</span></span>
+            <span class="flex items-center gap-2"><img src="Hot Dorgs.jpg" onerror="this.src='https://ui-avatars.com/api/?name=HD&background=1e293b&color=fff'" class="w-6 h-6 rounded-full grayscale opacity-50" alt="HD"><span>hotdorgs Production</span></span>
         </div>
     </footer>
 
@@ -361,7 +366,8 @@
     <!-- Loading -->
     <div id="loadingModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[200] backdrop-blur-sm flex-col">
         <div class="loader mb-6"></div>
-        <h2 class="text-white text-xl font-bold">Calculando...</h2>
+        <h2 class="text-white text-xl font-bold" id="loadingTitle">Calculando...</h2>
+        <p class="text-slate-500 text-sm mt-2" id="loadingDesc"></p>
     </div>
 
     <!-- Config Modal -->
@@ -437,6 +443,13 @@
                         </div>
                         <input type="password" id="cfgGeminiKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white transition hover:border-blue-500 focus:border-blue-500 outline-none" placeholder="Chave Gemini (AI Studio)">
                         <input type="password" id="cfgGroqKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white transition hover:border-orange-500 focus:border-orange-500 outline-none" placeholder="Chave Groq Cloud">
+                        
+                        <!-- Leetify Token Field -->
+                        <div class="relative">
+                             <label class="text-[10px] text-emerald-500 uppercase font-bold block mb-1">Leetify Integration</label>
+                             <input type="password" id="cfgLeetifyKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white transition hover:border-emerald-500 focus:border-emerald-500 outline-none" placeholder="Leetify API Token">
+                             <p class="text-[9px] text-slate-500 mt-1">* A chave do Leetify será pública para permitir updates dos visitantes.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -472,19 +485,17 @@
                         <input type="text" id="inputName" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none mt-1 placeholder-slate-700">
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Link Leetify (Opcional)</label>
-                        <input type="text" id="inputUrl" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 text-xs focus:border-blue-500 outline-none mt-1 placeholder-slate-700">
+                        <label class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Link Leetify / Steam (Obrigatório)</label>
+                        <input type="text" id="inputUrl" class="w-full bg-slate-950 border border-emerald-500/30 rounded-lg px-3 py-2 text-slate-300 text-xs focus:border-emerald-500 outline-none mt-1 placeholder-slate-700" placeholder="https://leetify.com/app/profile/...">
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Rating</label>
-                            <button onclick="toggleHelpView(true)" class="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 z-10 relative">
-                                <i class="fas fa-question-circle"></i> Como conseguir?
-                            </button>
+                            <span class="text-[9px] text-emerald-500 uppercase font-bold animate-pulse hidden" id="autoUpdateLabel">Auto-Updating...</span>
                         </div>
                         <input type="number" id="inputRating" step="0.01" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-emerald-400 font-mono text-lg focus:border-blue-500 outline-none placeholder-slate-700" placeholder="0.00">
                     </div>
-                    <button onclick="savePlayer()" class="w-full btn-primary text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest shadow-lg mt-2">Salvar</button>
+                    <button onclick="savePlayer()" class="w-full btn-primary text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest shadow-lg mt-2">Salvar & Atualizar</button>
                 </div>
             </div>
 
@@ -538,7 +549,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Define global showToast
         window.showToast = (msg, type = 'info') => {
@@ -564,7 +575,10 @@
         let db, auth;
         let isAdmin = false;
         let players = [];
+        let playerErrors = {}; // Track errors for specific players
         let currentMatch = null;
+        let leetifyToken = null; // Store locally after fetch
+        let isUpdatingGlobal = false;
         
         let globalConfig = { 
             apiKey: null, geminiKey: null, groqKey: null, provider: 'gemini', 
@@ -638,7 +652,23 @@
             // Matches
             onSnapshot(doc(db, 'matches', 'current'), (doc) => {
                 if(doc.exists()) {
-                    currentMatch = doc.data();
+                    const data = doc.data();
+                    currentMatch = data;
+                    
+                    // Check global updating state
+                    // We look for 'updatingSince' in matches/current as a proxy since config/public might be restricted
+                    if (data.updatingSince) {
+                        const now = Date.now();
+                        // If updating in the last 15 seconds, show loading state
+                        if (now - data.updatingSince < 15000) {
+                            toggleGlobalLoading(true);
+                        } else {
+                            toggleGlobalLoading(false);
+                        }
+                    } else {
+                        toggleGlobalLoading(false);
+                    }
+                    
                     renderResults();
                 } else {
                     currentMatch = null;
@@ -650,19 +680,15 @@
             onSnapshot(doc(db, 'config', 'public'), (doc) => {
                 if(doc.exists()) {
                     const data = doc.data();
-                    console.log("Config pública carregada:", data);
                     globalConfig = { ...globalConfig, ...data };
+                    // Capture Public Leetify Token if set here
+                    if(data.leetifyKey) leetifyToken = data.leetifyKey;
+                    
                     // Default perm check
                     if(!globalConfig.permissions) globalConfig.permissions = { add: false, edit: false, del: false, balance: false, clear: false };
                     
                     updateConfigUI();
                     applyPermissions();
-                }
-            }, (error) => {
-                console.error("Erro leitura config/public:", error);
-                if(error.code === 'permission-denied') {
-                    // Fallback visual for visitors
-                    showToast("Visitante: Sem leitura de config.", "error");
                 }
             });
 
@@ -694,6 +720,20 @@
             renderPlayerList();
         }
 
+        function toggleGlobalLoading(isLoading) {
+            const btn = document.getElementById('btnManualRefresh');
+            const icon = document.getElementById('refreshIcon');
+            isUpdatingGlobal = isLoading;
+            
+            if(isLoading) {
+                btn.disabled = true;
+                icon.classList.add('fa-spin');
+            } else {
+                btn.disabled = false;
+                icon.classList.remove('fa-spin');
+            }
+        }
+
         function updateConfigUI() {
             if(isAdmin) {
                 // Populate Admin Modal Inputs
@@ -703,6 +743,9 @@
                 const elGroq = document.getElementById('cfgGroqKey');
                 if(elGroq) elGroq.value = globalConfig.groqKey || '';
                 
+                const elLeetify = document.getElementById('cfgLeetifyKey');
+                if(elLeetify) elLeetify.value = globalConfig.leetifyKey || '';
+
                 const elProvider = document.getElementById('aiProvider');
                 if(elProvider) elProvider.value = globalConfig.provider || 'gemini';
                 
@@ -765,13 +808,26 @@
             const canEdit = isAdmin || p.edit;
             const canDel = isAdmin || p.del;
 
-            list.innerHTML = players.map(pl => `
-                <div class="glass-panel p-3 rounded-xl flex justify-between items-center group hover:bg-slate-800/60 transition border border-white/5 relative overflow-hidden">
+            list.innerHTML = players.map(pl => {
+                const hasError = playerErrors[pl.id];
+                // Changed: No longer adding border-red-500 to the container
+                const containerClass = 'glass-panel p-3 rounded-xl flex justify-between items-center group hover:bg-slate-800/60 transition relative overflow-hidden border border-white/5';
+                
+                return `
+                <div id="card-${pl.id}" class="${containerClass}">
                     <div class="absolute left-0 top-0 bottom-0 w-1 ${pl.rating >= 0 ? 'bg-emerald-500/50' : 'bg-red-500/50'}"></div>
                     <div class="flex flex-col pl-2">
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-white text-sm tracking-wide">${pl.name}</span>
                             ${pl.url ? `<a href="${pl.url}" target="_blank" class="text-slate-600 hover:text-blue-400 transition"><i class="fas fa-link text-[10px]"></i></a>` : ''}
+                            
+                            <!-- Red Dot Indicator -->
+                            ${hasError ? `
+                                <div class="w-2 h-2 bg-red-500 rounded-full shadow-[0_0_5px_rgba(239,68,68,0.8)] ml-2" title="Falha ao atualizar"></div>
+                                <button onclick="window.retryPlayer('${pl.id}')" class="bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 p-1 rounded transition ml-1" title="Tentar novamente">
+                                    <i class="fas fa-sync-alt text-[10px]"></i>
+                                </button>
+                            ` : ''}
                         </div>
                         <span class="text-[10px] font-mono text-slate-500">R: ${Number(pl.rating).toFixed(2)}</span>
                     </div>
@@ -781,8 +837,178 @@
                         ${!canEdit && !canDel ? `<span class="w-2 h-2 rounded-full bg-slate-700"></span>` : ''}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
+
+        // --- LEETIFY LOGIC ---
+
+        function extractSteamId(input) {
+            // Try to find a 17-digit SteamID64 in the input string
+            const match = input.match(/(\d{17})/);
+            return match ? match[1] : null;
+        }
+
+        async function fetchLeetifyRating(url, silent = false) {
+            if (!leetifyToken) {
+                if(!silent) showToast("Token Leetify não configurado", "error");
+                return null;
+            }
+
+            const steamId = extractSteamId(url);
+            if (!steamId) {
+                if(!silent) showToast("SteamID inválido ou não encontrado no link", "error");
+                return null;
+            }
+
+            try {
+                const response = await fetch(`https://api-public.cs-prod.leetify.com/v3/profile?steam64_id=${steamId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${leetifyToken}`,
+                        '_leetify_token': leetifyToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 429) {
+                    console.warn(`Rate Limit hit for ${steamId}`);
+                    return 'RATE_LIMIT';
+                }
+
+                if (response.status === 404) {
+                    console.warn(`Player not found: ${steamId}`);
+                    return null; // Just return null, don't throw
+                }
+
+                if (!response.ok) {
+                    // Log detalhado para debug
+                    const body = await response.text();
+                    console.error("Leetify API Error", { url, status: response.status, body });
+                    throw new Error(`API Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                let rating = null;
+                if (data.ranks && data.ranks.leetify !== undefined) {
+                    rating = data.ranks.leetify;
+                }
+
+                return rating !== null ? parseFloat(rating) : null;
+
+            } catch (e) {
+                console.error("Leetify Fetch Exception:", e);
+                if(!silent) showToast("Erro de conexão com Leetify", "error");
+                return null;
+            }
+        }
+
+        async function updateAllRatings() {
+            if (!leetifyToken) {
+                showToast("Configuração de Leetify ausente!", "error");
+                return; 
+            }
+            
+            // Tenta ativar o loading global
+            const now = Date.now();
+            try {
+                // Usamos matches/current porque visitors geralmente têm permissão de escrita aqui
+                // Diferente de config/public que costuma ser restrito
+                await setDoc(doc(db, 'matches', 'current'), { updatingSince: now }, { merge: true });
+            } catch (e) {
+                console.warn("Não foi possível definir status global de update (Permissão?). Atualizando localmente.", e);
+                // Fallback local visual
+                toggleGlobalLoading(true);
+            }
+
+            // RESET VISUAL ERRORS
+            playerErrors = {};
+            renderPlayerList();
+
+            showLoading(true, "Atualizando Ratings...", "Respeitando limite da API (Lento)...");
+            
+            try {
+                const batch = writeBatch(db);
+                let updateCount = 0;
+                let processed = 0;
+                let rateLimitHit = false;
+                const failures = [];
+
+                for (const p of players) {
+                    processed++;
+                    document.getElementById('loadingDesc').innerText = `Processando ${processed}/${players.length}: ${p.name}`;
+                    
+                    if (p.url) {
+                        const newRating = await fetchLeetifyRating(p.url, true); // Silent mode
+                        
+                        if (newRating === 'RATE_LIMIT') {
+                            rateLimitHit = true;
+                            await new Promise(resolve => setTimeout(resolve, 3000));
+                        } else if (newRating === null) {
+                            // FAILURE - MARK CARD
+                            failures.push(p.name);
+                            playerErrors[p.id] = true;
+                        } else if (!isNaN(newRating)) {
+                            // SUCCESS
+                            // Check diff locally before batch
+                            if (Math.abs(newRating - p.rating) > 0.01) {
+                                const ref = doc(db, 'players', p.id);
+                                batch.update(ref, { rating: newRating });
+                                updateCount++;
+                            }
+                        }
+                        // Increase delay to prevent 429
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                    }
+                }
+                
+                if (updateCount > 0) {
+                    await batch.commit();
+                    showToast(`${updateCount} ratings atualizados!`, "success");
+                } 
+                
+                if (failures.length > 0) {
+                    renderPlayerList(); // Update UI to show errors
+                    showToast(`Falha ao atualizar: ${failures.join(', ')}`, "error");
+                } else if (!rateLimitHit && updateCount === 0) {
+                    showToast("Todos ratings já atualizados.", "success");
+                }
+
+            } catch(e) {
+                console.error(e);
+                showToast("Erro na fila de atualização.", "error");
+            } finally {
+                // Clear Global Loading
+                try {
+                    await setDoc(doc(db, 'matches', 'current'), { updatingSince: null }, { merge: true });
+                } catch(e) { console.warn("Erro ao limpar status global", e); }
+                
+                toggleGlobalLoading(false);
+                showLoading(false);
+            }
+        }
+        
+        window.retryPlayer = async (id) => {
+            const p = players.find(x => x.id === id);
+            if(!p) return;
+            
+            const btn = document.getElementById(`card-${id}`).querySelector('button');
+            if(btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            const newRating = await fetchLeetifyRating(p.url);
+            
+            if (newRating !== null && !isNaN(newRating)) {
+                await setDoc(doc(db, 'players', id), { rating: newRating }, { merge: true });
+                // Clear error
+                delete playerErrors[id];
+                renderPlayerList();
+                showToast(`Rating de ${p.name} atualizado!`, "success");
+            } else {
+                showToast("Falha ao atualizar. Verifique Console.", "error");
+                if(btn) btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            }
+        };
+
 
         // --- GLOBAL FUNCTIONS ---
         window.toggleLoginModal = () => {
@@ -811,7 +1037,8 @@
                 copyFooter: document.getElementById('cfgCopyFooter').value.trim(),
                 aiBalanceEnabled: document.getElementById('flagAiBalance').checked,
                 aiCoachEnabled: document.getElementById('flagAiCoach').checked,
-                provider: document.getElementById('aiProvider').value, // Saved publicly so everyone knows which provider is active
+                provider: document.getElementById('aiProvider').value, 
+                leetifyKey: document.getElementById('cfgLeetifyKey').value.trim(), // Public now
                 permissions: {
                     add: document.getElementById('permAdd').checked,
                     edit: document.getElementById('permEdit').checked,
@@ -858,10 +1085,14 @@
 
         window.performLogout = async () => { await signOut(auth); await signInAnonymously(auth); showToast("Desconectado."); };
         
-        window.manualRefresh = () => {
+        window.manualRefresh = async () => {
+            if(isUpdatingGlobal) return;
             const icon = document.getElementById('refreshIcon');
             if(icon) icon.classList.add('fa-spin');
-            setupDataListeners();
+            
+            // Trigger API update for all (Manual Refresh always updates)
+            await updateAllRatings();
+
             if(icon) setTimeout(() => icon.classList.remove('fa-spin'), 1000);
         };
         
@@ -888,18 +1119,52 @@
 
         window.savePlayer = async () => {
             const name = document.getElementById('inputName').value.trim();
-            const rating = parseFloat(document.getElementById('inputRating').value);
-            const id = document.getElementById('playerId').value || 'p_' + Date.now();
             const url = document.getElementById('inputUrl').value.trim();
+            const id = document.getElementById('playerId').value || 'p_' + Date.now();
+            
+            // Rating input can be overwritten by API
+            let rating = parseFloat(document.getElementById('inputRating').value);
 
             if (!name) return showToast("Nome obrigatório", "error");
-            if (isNaN(rating)) return showToast("Rating inválido", "error");
+            // URL not mandatory for manual entry if they just want to input rating, but prompted as mandatory
+            if (!url) return showToast("Link Leetify/Steam obrigatório", "error");
+            
+            // Show Loading
+            const btn = document.querySelector('#playerModal button');
+            const originalText = btn.innerText;
+            btn.innerText = "Consultando Leetify...";
+            btn.disabled = true;
+
+            // Try Fetching Rating
+            const fetchedRating = await fetchLeetifyRating(url, true); // Silent fetch
+            if (fetchedRating !== null && typeof fetchedRating === 'number') {
+                rating = fetchedRating;
+                showToast(`Rating atualizado: ${rating}`, "success");
+            } else if (isNaN(rating)) {
+                // If fetch failed AND manual input is empty
+                btn.innerText = originalText;
+                btn.disabled = false;
+                return showToast("Falha na API e sem rating manual", "error");
+            } else {
+                // Fetch failed but we have manual rating
+                showToast("API Falhou - Usando rating manual", "info");
+            }
 
             try {
                 await setDoc(doc(db, 'players', id), { name, url, rating, id }, { merge: true });
+                
+                // Clear error status for this player immediately
+                if (playerErrors[id]) {
+                    delete playerErrors[id];
+                    renderPlayerList();
+                }
+
                 window.closeModal('playerModal');
-                showToast("Jogador salvo!", "success");
+                // showToast("Jogador salvo!", "success"); // Already showed toast above or redundant
             } catch(e) { showToast("Erro ao salvar", "error"); }
+            
+            btn.innerText = originalText;
+            btn.disabled = false;
         };
 
         window.triggerDelete = (id) => {
@@ -924,23 +1189,45 @@
         
         window.clearCurrentMatch = async () => { await setDoc(doc(db, 'matches', 'current'), { teamA: [], teamB: [] }); };
 
+        // Helper for modal loading
+        function showLoading(show, title, desc) {
+            const m = document.getElementById('loadingModal');
+            if(show) {
+                document.getElementById('loadingTitle').innerText = title || "Calculando...";
+                document.getElementById('loadingDesc').innerText = desc || "";
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            } else {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
+        }
+
         window.handleBalance = async () => {
             if(players.length < 10) return showToast("Mínimo 10 jogadores", "error");
+            
             const aiToggle = document.getElementById('useAiToggle');
             const useAi = aiToggle ? aiToggle.checked : false;
             
-            document.getElementById('loadingModal').classList.remove('hidden');
-            document.getElementById('loadingModal').classList.add('flex');
+            // CHECK AUTO-UPDATE Checkbox
+            const shouldUpdate = document.getElementById('chkAutoUpdate').checked;
             
-            const pool = [...players].sort(()=>Math.random()-0.5);
-            const active = pool.slice(0,10);
-            const reserves = pool.slice(10);
+            if (shouldUpdate) {
+                await updateAllRatings();
+            }
+
+            showLoading(true, "Equilibrando...", "Calculando as melhores combinações...");
             
-            if (useAi && globalConfig.aiBalanceEnabled) {
-                performAiBalance(active, reserves);
-            } else {
-                // Math fallback logic
-                setTimeout(async () => {
+            // Small delay to allow UI to render the loading state properly
+            setTimeout(async () => {
+                const pool = [...players].sort(()=>Math.random()-0.5);
+                const active = pool.slice(0,10);
+                const reserves = pool.slice(10);
+                
+                if (useAi && globalConfig.aiBalanceEnabled) {
+                    performAiBalance(active, reserves);
+                } else {
+                    // Math fallback logic
                     const combinations = (arr, k) => {
                         const res = [];
                         const f = (start, combo) => {
@@ -957,10 +1244,9 @@
                     const tB = active.filter(p => !tA.some(x=>x.id===p.id));
                     
                     await setDoc(doc(db, 'matches', 'current'), { teamA: tA, teamB: tB, reserves, analysis: null });
-                    document.getElementById('loadingModal').classList.add('hidden');
-                    document.getElementById('loadingModal').classList.remove('flex');
-                }, 500);
-            }
+                    showLoading(false);
+                }
+            }, 500);
         };
 
         async function performAiBalance(active, reserves) {
@@ -977,8 +1263,7 @@
             }
 
             if (!activeKey) {
-                document.getElementById('loadingModal').classList.add('hidden');
-                document.getElementById('loadingModal').classList.remove('flex');
+                showLoading(false);
                 showToast("Chave da IA não encontrada (Visitantes não têm acesso).", "error");
                 
                 // Fallback to math
@@ -1010,8 +1295,7 @@
                     teamA, teamB, reserves, timestamp: new Date().toISOString(), analysis: null
                 });
                 
-                document.getElementById('loadingModal').classList.add('hidden');
-                document.getElementById('loadingModal').classList.remove('flex');
+                showLoading(false);
 
             } catch (e) {
                 console.error(e);
