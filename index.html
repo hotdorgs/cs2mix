@@ -743,16 +743,35 @@
         }
         
         window.clearResults = async function() {
+            // Feedback visual no botão
+            const btn = event.currentTarget;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Limpando...';
+            btn.disabled = true;
+
             try {
                 const matchRef = getMatchDocRef();
-                // Opcional: Se quiser limpar para todos, descomente a linha abaixo. 
-                // Se quiser limpar só localmente, apenas esconda a div.
-                // await setDoc(matchRef, { teamA: [], teamB: [], timestamp: null });
                 
-                document.getElementById('resultsArea').classList.add('hidden');
-                document.getElementById('placeholderResult').classList.remove('hidden');
+                // ATUALIZAÇÃO: Agora limpa no Firebase para todos
+                // Define os times como arrays vazios e remove a análise
+                await setDoc(matchRef, { 
+                    teamA: [], 
+                    teamB: [], 
+                    timestamp: null, 
+                    analysis: null 
+                });
+                
                 generatedHistory.clear();
-            } catch(e) { console.error(e); }
+                // Nota: Não precisamos esconder a div manualmente aqui, 
+                // pois o setupMatchListener() vai detectar a mudança no banco 
+                // e esconder a tela automaticamente para todos.
+            } catch(e) { 
+                console.error(e);
+                showAlert("Erro ao limpar times no servidor.");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
         }
         
         window.manualRefresh = function() { 
