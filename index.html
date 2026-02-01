@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS2 Mix Balancer - hotdorgs Edition</title>
+    <title>CS2 Mix Balancer - Hotdorgs Edition</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts: Inter & Rajdhani -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Markdown Parser for AI response -->
+    <!-- Marked.js for Markdown Rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -23,17 +28,24 @@
                             800: '#101623',
                             700: '#1a2236',
                         },
-                        ct: '#4b69ff',
-                        tr: '#eb9e34'
+                        ct: '#4b69ff', // Counter-Terrorist Blue
+                        tr: '#eb9e34'  // Terrorist Orange
                     }
                 }
             }
         }
     </script>
+
     <style>
-        body { background-color: #0b0f19; color: #f1f5f9; background-image: radial-gradient(circle at 50% 0%, #1a2236 0%, #0b0f19 70%); min-height: 100vh; }
+        /* Base Styles */
+        body {
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            background-image: radial-gradient(circle at 50% 0%, #1a2236 0%, #0b0f19 70%);
+            min-height: 100vh;
+        }
         
-        /* Glassmorphism */
+        /* Glassmorphism Classes */
         .glass-panel {
             background: rgba(16, 22, 35, 0.7);
             backdrop-filter: blur(12px);
@@ -48,19 +60,86 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Buttons & Gradients */
-        .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); transition: all 0.3s ease; }
-        .btn-primary:hover { box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); transform: translateY(-1px); }
-        
-        .btn-ai { background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%); transition: all 0.3s ease; }
-        .btn-ai:hover { box-shadow: 0 0 15px rgba(219, 39, 119, 0.4); transform: translateY(-1px); }
+        /* Interactive Elements */
+        .btn-primary { 
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .btn-primary:hover:not(:disabled) { 
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); 
+            transform: translateY(-1px); 
+        }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 
         /* Animations */
-        @keyframes pulse-glow { 0%, 100% { opacity: 1; box-shadow: 0 0 5px currentColor; } 50% { opacity: 0.7; box-shadow: 0 0 2px currentColor; } }
-        .animate-status { animation: pulse-glow 3s infinite; }
+        @keyframes pulse-glow { 
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 5px currentColor; } 
+            50% { opacity: 0.6; transform: scale(1.1); box-shadow: 0 0 10px currentColor; } 
+        }
+        .animate-status { animation: pulse-glow 2s infinite; }
         
-        .loader-ai { border: 3px solid rgba(139, 92, 246, 0.3); border-top: 3px solid #d946ef; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader { border: 2px solid rgba(255,255,255,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; }
+
+        /* Dynamic Island System */
+        .island-base {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+            background: rgba(16, 22, 35, 0.85); /* Fundo base */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border-radius: 1.25rem;
+        }
+
+        /* Copy Island (Centered) */
+        .dynamic-island-center {
+            position: fixed;
+            top: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 60;
+            display: flex;
+            justify-content: center;
+        }
+        .island-copy {
+            width: 0;
+            transform: scale(0.9);
+        }
+        .island-copy.active {
+            max-height: 600px;
+            width: 380px;
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+            padding: 1.25rem;
+        }
+
+        /* Login Island (Top Right) */
+        .dynamic-island-right {
+            position: fixed;
+            top: 4.5rem; /* Logo abaixo da navbar */
+            right: 1rem; /* Alinhado com o botão */
+            z-index: 60;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .island-login {
+            width: 20rem; /* w-80 */
+            transform: translateY(-10px) scale(0.95);
+            transform-origin: top right;
+        }
+        .island-login.active {
+            max-height: 400px;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            padding: 1.25rem;
+        }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
@@ -68,69 +147,55 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        /* Dynamic Island */
-        .dynamic-island {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            transform-origin: top right;
-        }
-        .dynamic-island.hidden { opacity: 0; transform: scale(0.9) translateY(-10px); pointer-events: none; }
-        .dynamic-island.flex { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
-        
-        /* Tooltip */
-        .tooltip-trigger:hover .tooltip-content { opacity: 1; visibility: visible; transform: translate(-50%, -10px); }
-        .tooltip-content { opacity: 0; visibility: hidden; transition: all 0.2s ease; transform: translate(-50%, 0px); }
+        /* Toasts */
+        .toast-enter { transform: translateX(100%); opacity: 0; }
+        .toast-enter-active { transform: translateX(0); opacity: 1; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast-exit { transform: translateX(0); opacity: 1; }
+        .toast-exit-active { transform: translateX(100%); opacity: 0; transition: all 0.3s ease-in; }
 
-        /* Toast Animation */
-        .toast-enter { transform: translateY(100%); opacity: 0; }
-        .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 0.3s ease-out; }
-        .toast-exit { transform: translateY(0); opacity: 1; }
-        .toast-exit-active { transform: translateY(100%); opacity: 0; transition: all 0.3s ease-in; }
-
-        /* Markdown Styles */
+        /* Markdown Prose */
         .prose strong { color: #fff; font-weight: 700; }
         .prose p { margin-bottom: 0.5rem; color: #cbd5e1; }
         .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.5rem; }
-
-        /* Disabled State for AI Toggle */
-        .ai-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
     </style>
 </head>
-<body class="flex flex-col selection:bg-blue-500 selection:text-white">
+<body class="flex flex-col selection:bg-blue-500 selection:text-white overflow-x-hidden">
 
-    <!-- Navbar Fixa -->
-    <nav class="glass-header fixed top-0 w-full z-50">
+    <!-- Navbar Sticky -->
+    <nav class="glass-header sticky top-0 w-full z-50">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <!-- Logo & Brand -->
+            <!-- Logo Section -->
             <div class="flex items-center gap-3">
-                <div class="relative group">
-                    <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-75 group-hover:opacity-100 blur transition duration-500"></div>
-                    <img src="Hot Dorgs.jpg" alt="Logo" class="relative w-10 h-10 rounded-full border-2 border-slate-900 object-cover">
+                <div class="relative group cursor-pointer">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-50 group-hover:opacity-100 blur transition duration-500"></div>
+                    <img src="Hot Dorgs.jpg" onerror="this.src='https://ui-avatars.com/api/?name=HD&background=1e293b&color=fff&length=2&font-size=0.4'" alt="Logo" class="relative w-10 h-10 rounded-full border border-white/10 object-cover shadow-lg">
                 </div>
                 <div class="flex flex-col">
-                    <span class="font-display font-bold text-xl tracking-tight leading-none text-white">CS2 <span class="text-blue-500">MIX</span></span>
-                    <span class="text-[10px] text-slate-400 font-medium tracking-wide">POWERED BY hotdorgs</span>
+                    <h1 class="font-display font-bold text-lg tracking-tight leading-none text-white">MIX <span class="text-blue-500 uppercase">Balancer</span></h1>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Powered by Hotdorgs</p>
                 </div>
             </div>
 
             <!-- Right Actions -->
             <div class="flex items-center gap-4">
-                <!-- Status Pill -->
-                <div class="hidden md:flex items-center gap-2 bg-slate-900/50 px-3 py-1 rounded-full border border-slate-700/50 cursor-help transition hover:border-slate-600" title="Status da Conexão">
-                    <div id="statusDot" class="w-2 h-2 rounded-full bg-red-500 animate-status"></div>
-                    <span id="statusText" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Offline</span>
+                <!-- Status Widget -->
+                <div class="hidden sm:flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full border border-white/5 shadow-inner">
+                    <div id="statusLed" class="w-2 h-2 rounded-full bg-slate-600 transition-colors duration-500"></div>
+                    <span id="statusLabel" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Conectando...</span>
                 </div>
-
-                <!-- Admin Controls -->
-                <div class="flex gap-2">
-                    <button id="navLoginBtn" onclick="openLoginModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition border border-slate-700 flex items-center gap-2">
-                        <i class="fas fa-lock text-xs"></i> <span>ADMIN</span>
+                
+                <!-- Auth Actions -->
+                <div id="authActions" class="flex gap-2 relative">
+                    <button onclick="toggleIsland('login')" id="loginTrigger" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border border-white/5">
+                        <i class="fas fa-lock"></i> <span>LOGIN</span>
                     </button>
-
-                    <div id="adminControls" class="hidden flex gap-2">
-                        <button onclick="openConfigModal()" class="bg-slate-800/80 hover:bg-purple-900/30 text-purple-400 hover:text-purple-300 px-3 py-2 rounded-lg transition border border-purple-500/20 hover:border-purple-500/50 flex items-center gap-2" title="Configurações">
+                    
+                    <!-- Admin Menu (Hidden by default) -->
+                    <div id="adminMenu" class="hidden flex gap-2">
+                        <button onclick="openConfig()" class="bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 p-2 rounded-xl transition border border-blue-500/20" title="Configurações">
                             <i class="fas fa-cog"></i>
                         </button>
-                        <button onclick="performLogout()" class="bg-slate-800/80 hover:bg-red-900/30 text-red-400 hover:text-red-300 px-3 py-2 rounded-lg transition border border-red-500/20 hover:border-red-500/50 flex items-center gap-2" title="Sair">
+                        <button onclick="handleLogout()" class="bg-red-600/10 hover:bg-red-600/20 text-red-400 p-2 rounded-xl transition border border-red-500/20" title="Sair">
                             <i class="fas fa-sign-out-alt"></i>
                         </button>
                     </div>
@@ -139,954 +204,1118 @@
         </div>
     </nav>
 
-    <!-- Login Popup (Dynamic Island Style) -->
-    <div id="loginModal" class="dynamic-island hidden fixed top-20 right-4 z-[60] w-72 glass-panel rounded-2xl p-5 shadow-2xl">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-shield-alt text-blue-500"></i> Acesso Restrito</h3>
-            <button onclick="closeLoginModal()" class="text-slate-500 hover:text-white transition"><i class="fas fa-times"></i></button>
+    <!-- Dynamic Island: LOGIN (Right Aligned) -->
+    <div class="dynamic-island-right">
+        <div id="islandLogin" class="island-base island-login flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-2">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <i class="fas fa-shield-alt text-blue-500"></i> Área Administrativa
+                </h3>
+                <button onclick="toggleIsland('login')" class="text-slate-500 hover:text-white transition"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <input type="text" id="loginEmail" class="w-full bg-slate-950/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition placeholder-slate-600" placeholder="Email">
+                <input type="password" id="loginPass" class="w-full bg-slate-950/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition placeholder-slate-600" placeholder="Senha">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="saveLogin" class="accent-blue-500 w-3 h-3 rounded bg-slate-800 border-slate-600">
+                    <label for="saveLogin" class="text-[10px] text-slate-400 cursor-pointer">Lembrar acesso</label>
+                </div>
+                <button onclick="handleLogin()" class="w-full btn-primary text-white py-2 rounded-lg font-bold text-xs shadow-lg flex justify-center items-center gap-2">
+                    ENTRAR
+                </button>
+            </div>
         </div>
-        <div class="space-y-3">
-            <input type="text" id="adminUser" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition" placeholder="Usuário">
-            <input type="password" id="adminPass" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition" placeholder="Senha">
-            <label class="flex items-center gap-2 cursor-pointer select-none">
-                <input type="checkbox" id="rememberMe" class="rounded bg-slate-800 border-slate-600 text-blue-600 focus:ring-0 w-3 h-3">
-                <span class="text-xs text-slate-400">Lembrar acesso</span>
-            </label>
-            <button onclick="checkLogin()" class="w-full btn-primary text-white py-2 rounded-lg font-bold text-sm shadow-lg mt-2">ENTRAR</button>
+    </div>
+
+    <!-- Dynamic Island: COPY (Center Aligned) -->
+    <div class="dynamic-island-center">
+        <div id="islandCopy" class="island-base island-copy flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b border-white/5 pb-2">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <i class="fas fa-clipboard text-emerald-500"></i> Prévia da Cópia
+                </h3>
+                <button onclick="toggleIsland('copy')" class="text-slate-500 hover:text-white transition"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="bg-slate-950/50 rounded-lg p-3 border border-slate-800 mb-3 overflow-hidden">
+                <pre id="copyPreviewText" class="text-[10px] text-slate-300 font-mono whitespace-pre-wrap break-words max-h-[300px] overflow-y-auto custom-scroll"></pre>
+            </div>
+            <button onclick="confirmCopy()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-lg font-bold text-xs shadow-lg flex justify-center items-center gap-2 transition">
+                <i class="fas fa-copy"></i> CONFIRMAR CÓPIA
+            </button>
         </div>
     </div>
 
     <!-- Main Content -->
-    <main class="flex-grow pt-24 pb-10 px-4 w-full max-w-7xl mx-auto">
+    <main class="flex-grow pt-8 pb-10 px-4 w-full max-w-7xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             
-            <!-- Left Column: Lobby & Players (8 cols) -->
+            <!-- LEFT COLUMN: Player Management (8 cols) -->
             <div class="lg:col-span-8 space-y-6">
                 
-                <!-- Lobby Control Card -->
+                <!-- Lobby Header & Controls -->
                 <div class="glass-panel rounded-2xl p-6 relative overflow-hidden">
-                    <!-- Background Decoration -->
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16"></div>
-
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16"></div>
+                    
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 relative z-10">
                         <div>
                             <h2 class="text-2xl font-display font-bold text-white flex items-center gap-2">
                                 <i class="fas fa-users text-blue-500"></i> LOBBY
                                 <span class="bg-slate-800 text-slate-300 text-xs px-2 py-0.5 rounded-full border border-slate-700 font-mono ml-2">
-                                    <span id="playerCount">0</span>/10
+                                    <span id="countDisplay">0</span>/10
                                 </span>
                             </h2>
-                            <p class="text-xs text-slate-400 mt-1">Adicione os jogadores para sortear.</p>
+                            <p class="text-xs text-slate-400 mt-1">Gerencie a lista de presença para o mix.</p>
                         </div>
                         
                         <div class="flex gap-2 w-full sm:w-auto">
-                            <button onclick="manualRefresh()" class="p-2.5 text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-700 rounded-lg border border-slate-700 transition" title="Atualizar Lista">
-                                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                            <!-- Shuffle/Refresh Animation Trigger -->
+                            <button onclick="animateRefresh()" class="p-2.5 text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-700 rounded-lg border border-slate-700 transition" title="Embaralhar visualmente">
+                                <i id="refreshIcon" class="fas fa-sync-alt"></i>
                             </button>
-                            <button onclick="openJoinModal()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2">
+                            <button id="btnAddPlayer" onclick="openAddPlayerModal()" class="hidden flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2">
                                 <i class="fas fa-plus"></i> ADD PLAYER
                             </button>
                         </div>
                     </div>
 
-                    <!-- Players List -->
-                    <div id="playersList" class="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[100px]">
-                        <!-- Player cards injected here -->
-                        <div class="col-span-full flex flex-col items-center justify-center py-10 text-slate-600 border-2 border-dashed border-slate-800 rounded-xl">
-                            <i class="fas fa-user-astronaut text-3xl mb-2"></i>
-                            <span class="text-sm">Lobby vazio</span>
+                    <!-- Players Grid -->
+                    <div id="playersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[120px] transition-all duration-300">
+                        <!-- Content injected via JS -->
+                        <div class="col-span-full flex flex-col items-center justify-center py-12 text-slate-600 border-2 border-dashed border-slate-800 rounded-xl bg-slate-900/20">
+                            <i class="fas fa-ghost text-3xl mb-3 opacity-50"></i>
+                            <span class="text-sm font-medium">Lobby vazio...</span>
                         </div>
                     </div>
 
-                    <!-- Control Bar -->
+                    <!-- Actions Bar -->
                     <div class="mt-8 pt-6 border-t border-white/5 flex flex-col md:flex-row gap-4 items-center justify-between">
                         
-                        <!-- AI Toggle -->
-                        <div class="flex items-center gap-3 bg-black/20 px-4 py-2 rounded-lg border border-white/5">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Modo:</span>
+                        <!-- AI Options -->
+                        <div class="flex items-center gap-3 bg-black/20 px-4 py-2 rounded-lg border border-white/5 w-full md:w-auto">
                             <label class="inline-flex items-center cursor-pointer group">
-                                <input type="checkbox" id="useAiToggle" class="sr-only peer" onchange="toggleAiSelect()" disabled>
-                                <div class="relative w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-slate-300 after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600 peer-checked:after:bg-white"></div>
-                                <span id="aiToggleText" class="ms-2 text-xs font-bold text-slate-500 group-hover:text-slate-300 transition-colors ai-disabled">IA (Dev)</span>
+                                <input type="checkbox" id="aiToggle" class="sr-only peer" onchange="toggleAiOptions()" disabled>
+                                <div class="relative w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-slate-300 after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600 peer-checked:after:bg-white transition-colors"></div>
+                                <span id="aiLabel" class="ms-2 text-xs font-bold text-slate-500 transition-colors">IA (Desativada)</span>
                             </label>
 
-                            <!-- AI Provider Select -->
-                            <div id="aiSelectContainer" class="hidden">
-                                <select id="mainAiProvider" class="bg-slate-900 border border-purple-500/30 text-[10px] text-purple-300 rounded px-2 py-1 outline-none focus:ring-1 focus:ring-purple-500 h-6">
-                                    <option value="gemini">Gemini</option>
-                                    <option value="groq">Groq</option>
+                            <div id="aiProviderSelect" class="hidden transition-all duration-300">
+                                <div class="h-4 w-[1px] bg-white/10 mx-2 inline-block align-middle"></div>
+                                <select id="aiProvider" class="bg-transparent text-[10px] text-purple-300 font-bold uppercase outline-none cursor-pointer">
+                                    <option value="gemini" class="bg-slate-900 text-white">Gemini</option>
+                                    <option value="groq" class="bg-slate-900 text-white">Groq (Llama)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Main Actions -->
+                        <!-- Main Buttons -->
                         <div class="flex gap-2 w-full md:w-auto">
-                            <button onclick="clearResults()" class="flex-1 md:flex-none px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold border border-slate-700 transition">
+                            <button id="btnClear" onclick="clearCurrentMatch()" class="hidden flex-1 md:flex-none px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold border border-slate-700 transition">
                                 LIMPAR
                             </button>
-                            <button onclick="balanceTeams()" id="balanceBtn" class="flex-[2] md:flex-none btn-primary text-white px-8 py-2.5 rounded-lg text-sm font-bold shadow-lg flex items-center justify-center gap-2">
-                                <i class="fas fa-balance-scale"></i> EQUILIBRAR
+                            <button onclick="handleBalance()" id="balanceBtn" class="hidden flex-[2] md:flex-none btn-primary text-white px-8 py-2.5 rounded-lg text-sm font-bold shadow-lg flex items-center justify-center gap-2 group">
+                                <i class="fas fa-balance-scale group-hover:rotate-12 transition-transform"></i> 
+                                <span id="balanceBtnText">EQUILIBRAR TIMES</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Results (4 cols) -->
-            <div class="lg:col-span-4">
+            <!-- RIGHT COLUMN: Match Results (4 cols) -->
+            <div class="lg:col-span-4 h-full">
                 
-                <!-- Placeholder State -->
-                <div id="placeholderResult" class="glass-panel rounded-2xl p-8 flex flex-col items-center justify-center text-center h-full min-h-[400px] border-dashed">
-                    <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4 text-slate-600">
+                <!-- Empty State -->
+                <div id="emptyState" class="glass-panel rounded-2xl p-8 flex flex-col items-center justify-center text-center h-full min-h-[400px] border-dashed">
+                    <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4 text-slate-600 shadow-inner">
                         <i class="fas fa-gamepad text-2xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-300">Aguardando Sorteio</h3>
-                    <p class="text-sm text-slate-500 mt-2 max-w-[200px]">Adicione 10 jogadores e clique em equilibrar para gerar a partida.</p>
+                    <p class="text-xs text-slate-500 mt-2 max-w-[200px] leading-relaxed">Adicione pelo menos 10 jogadores e clique em equilibrar para gerar a partida.</p>
                 </div>
 
-                <!-- Results Display -->
-                <div id="resultsArea" class="hidden space-y-4">
+                <!-- Results State -->
+                <div id="resultsState" class="hidden flex-col gap-4 h-full">
                     
-                    <div class="flex justify-between items-end mb-2 px-1">
-                        <h3 class="text-lg font-display font-bold text-white">MATCHUP</h3>
-                        <span id="diffDisplay" class="text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded">Diff: ...</span>
+                    <div class="flex justify-between items-end px-1">
+                        <h3 class="text-lg font-display font-bold text-white tracking-wide">MATCHUP</h3>
+                        <div id="diffBadge" class="text-[10px] font-mono font-bold bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">Diff: 0.00</div>
                     </div>
 
-                    <!-- Team A (CT) -->
-                    <div class="glass-panel rounded-xl overflow-hidden border-l-4 border-l-ct">
-                        <div class="bg-gradient-to-r from-ct/20 to-transparent p-3 flex justify-between items-center border-b border-white/5">
-                            <span class="font-bold text-blue-400 text-sm tracking-wide">TIME A</span>
-                            <span id="scoreA" class="text-[10px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded">Avg: 0.00</span>
+                    <!-- Team A -->
+                    <div class="glass-panel rounded-xl overflow-hidden border-l-4 border-l-ct shadow-lg relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="bg-slate-900/50 p-3 flex justify-between items-center border-b border-white/5">
+                            <span class="font-bold text-blue-400 text-xs tracking-widest uppercase">Counter-Terrorists</span>
+                            <span id="avgA" class="text-[10px] font-mono bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded border border-blue-500/20">Avg: 0.00</span>
                         </div>
                         <div id="listA" class="p-1"></div>
                     </div>
 
-                    <!-- VS Badge -->
-                    <div class="relative flex items-center justify-center py-2 opacity-50">
-                        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-700"></div></div>
-                        <div class="relative bg-slate-900 px-2 text-xs text-slate-500 font-display font-bold">VS</div>
+                    <!-- VS Divider -->
+                    <div class="relative flex items-center justify-center opacity-60">
+                        <div class="w-full border-t border-slate-700"></div>
+                        <span class="absolute bg-[#0b0f19] px-2 text-[10px] text-slate-500 font-display font-bold uppercase tracking-widest">Versus</span>
                     </div>
 
-                    <!-- Team B (TR) -->
-                    <div class="glass-panel rounded-xl overflow-hidden border-l-4 border-l-tr">
-                        <div class="bg-gradient-to-r from-tr/20 to-transparent p-3 flex justify-between items-center border-b border-white/5">
-                            <span class="font-bold text-orange-400 text-sm tracking-wide">TIME B</span>
-                            <span id="scoreB" class="text-[10px] font-mono bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded">Avg: 0.00</span>
+                    <!-- Team B -->
+                    <div class="glass-panel rounded-xl overflow-hidden border-l-4 border-l-tr shadow-lg relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        <div class="bg-slate-900/50 p-3 flex justify-between items-center border-b border-white/5">
+                            <span class="font-bold text-orange-400 text-xs tracking-widest uppercase">Terrorists</span>
+                            <span id="avgB" class="text-[10px] font-mono bg-orange-500/10 text-orange-300 px-2 py-0.5 rounded border border-orange-500/20">Avg: 0.00</span>
                         </div>
                         <div id="listB" class="p-1"></div>
                     </div>
 
                     <!-- Reserves -->
-                    <div id="reservesContainer" class="hidden glass-panel rounded-xl p-3 border border-slate-700/50 bg-black/20">
-                        <div class="text-[10px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-2">
-                            <i class="fas fa-clock"></i> Próximos / Banco
+                    <div id="reservesBox" class="hidden glass-panel rounded-xl p-3 border border-slate-700/50 bg-black/20">
+                        <div class="text-[9px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-2">
+                            <i class="fas fa-chair"></i> Reservas / Próximos
                         </div>
                         <div id="listReserves" class="flex flex-wrap gap-2"></div>
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="grid grid-cols-1 gap-3 pt-2">
-                        <button id="coachBtn" onclick="callAiCoach()" disabled class="w-full bg-slate-800 border border-slate-700 text-slate-500 py-3 rounded-lg font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2 transition relative overflow-hidden group">
-                            <div id="coachBtnGradient" class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 transition-opacity duration-300"></div>
-                            <span id="coachBtnText" class="relative z-10 flex items-center gap-2">
-                                <i class="fas fa-tools"></i> COACH IA (EM BREVE)
+                    <div class="grid grid-cols-1 gap-3 mt-auto pt-4">
+                        <button id="coachBtn" onclick="handleAiCoach()" class="w-full bg-slate-800 border border-slate-700 text-slate-500 py-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed">
+                            <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100 z-0"></div>
+                            <span class="relative z-10 flex items-center gap-2 group-hover:text-white transition-colors">
+                                <i class="fas fa-brain"></i> <span id="coachBtnText">COACH IA</span>
                             </span>
                         </button>
 
-                        <div class="relative group tooltip-trigger w-full">
-                            <button id="copyBtn" onclick="copyTeams()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white py-3 rounded-lg font-bold text-xs border border-slate-600 transition flex items-center justify-center gap-2">
-                                <i class="fas fa-copy"></i> COPIAR TIMES
+                        <div class="relative w-full">
+                            <button id="copyBtn" onclick="prepareCopy()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white py-3 rounded-lg font-bold text-xs border border-slate-600 transition flex items-center justify-center gap-2">
+                                <i class="fas fa-copy"></i> COPIAR TEXTO
                             </button>
-                            <!-- Tooltip -->
-                            <div class="tooltip-content absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-900 border border-slate-700 rounded-lg p-3 shadow-2xl z-20 pointer-events-none">
-                                <div class="text-[10px] font-bold text-slate-400 mb-1 border-b border-slate-800 pb-1">Pré-visualização</div>
-                                <pre id="copyPreview" class="text-[9px] text-slate-500 font-mono whitespace-pre-wrap">Gerando...</pre>
-                            </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Footer Simple -->
+    <!-- Footer -->
     <footer class="border-t border-slate-800/50 py-6 mt-auto bg-[#0b0f19]">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
-            <div>
-                &copy; 2026 CS2 Mix Balancer.
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <img src="Hot Dorgs.jpg" class="w-6 h-6 rounded-full grayscale opacity-50" alt="HD">
-                    <span>hotdorgs Production</span>
-                </div>
-            </div>
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center text-[10px] text-slate-600 uppercase tracking-wider">
+            <span>&copy; 2026 CS2 Mix Balancer</span>
+            <span class="flex items-center gap-2">
+                <i class="fas fa-code"></i> Developed by Hotdorgs
+            </span>
         </div>
     </footer>
 
-    <!-- Toasts -->
-    <div id="toastContainer" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+    <!-- MODALS -->
 
-    <!-- Loading Modal -->
-    <div id="loadingModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[200] backdrop-blur-sm flex-col">
-        <div class="loader-lg mb-6"></div>
-        <h2 id="loadingTitle" class="text-white text-xl font-bold">Calculando...</h2>
-        <p id="loadingSub" class="text-slate-400 text-sm mt-2">Analisando combinações...</p>
+    <!-- 1. Add/Edit Player Modal -->
+    <div id="playerModal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm shadow-2xl transform transition-all scale-95 opacity-0 modal-content relative overflow-hidden">
+            <!-- Form View -->
+            <div id="playerFormView" class="w-full h-full">
+                <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center gap-2">
+                        <i class="fas fa-user-plus text-blue-500"></i> <span id="modalTitle">Adicionar Jogador</span>
+                    </h3>
+                    <button onclick="closeModal('playerModal')" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="p-5 space-y-4">
+                    <input type="hidden" id="playerId">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nickname</label>
+                        <input type="text" id="inputName" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none mt-1 placeholder-slate-700">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Link Leetify (Opcional)</label>
+                        <input type="text" id="inputUrl" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 text-xs focus:border-blue-500 outline-none mt-1 placeholder-slate-700">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Rating</label>
+                            <button onclick="toggleHelpView(true)" class="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 z-10 relative">
+                                <i class="fas fa-question-circle"></i> Como conseguir?
+                            </button>
+                        </div>
+                        <input type="number" id="inputRating" step="0.01" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-emerald-400 font-mono text-lg focus:border-blue-500 outline-none placeholder-slate-700" placeholder="0.00">
+                    </div>
+                    <button onclick="savePlayer()" class="w-full btn-primary text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest shadow-lg mt-2">Salvar</button>
+                </div>
+            </div>
+
+            <!-- Help View (Overlay) -->
+            <div id="playerHelpView" class="hidden absolute inset-0 bg-slate-900 z-20 flex flex-col w-full h-full">
+                <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-800/30">
+                    <h3 class="text-white font-bold text-sm uppercase"><i class="fas fa-info-circle text-blue-500 mr-2"></i> Ajuda Leetify</h3>
+                    <button onclick="toggleHelpView(false)" class="text-slate-400 hover:text-white text-xs font-bold uppercase">Voltar</button>
+                </div>
+                <div class="p-5 flex-1 overflow-y-auto">
+                    <p class="text-xs text-slate-400 mb-4">Para encontrar seu rating, acesse seu perfil no Leetify. O número aparece logo abaixo do seu nome.</p>
+                    <div class="bg-black/40 rounded-lg p-4 border border-slate-800 mb-4 flex flex-col items-center">
+                        <i class="fas fa-chart-line text-4xl text-slate-600 mb-2"></i>
+                        <span class="text-emerald-400 font-mono text-xl font-bold">+2.45</span>
+                        <span class="text-[10px] text-slate-500 uppercase mt-1">Exemplo de Rating</span>
+                    </div>
+                    <a href="https://leetify.com/profile/" target="_blank" class="block w-full bg-slate-800 hover:bg-slate-700 text-center py-3 rounded-lg text-xs font-bold text-white transition border border-slate-700">
+                        ABRIR LEETIFY.COM <i class="fas fa-external-link-alt ml-1"></i>
+                    </a>
+                </div>
+                <div class="p-4 border-t border-slate-800">
+                    <button onclick="toggleHelpView(false)" class="w-full bg-slate-800 text-slate-300 py-2 rounded-lg text-xs font-bold">Voltar para Edição</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Config Modal -->
-    <div id="configModal" class="hidden fixed inset-0 bg-black/80 z-[100] items-center justify-center backdrop-blur-sm p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-            <div class="bg-slate-800/50 p-4 border-b border-slate-700 flex justify-between items-center">
-                <h3 class="text-white font-bold"><i class="fas fa-cog text-slate-400 mr-2"></i> Configurações</h3>
-                <button onclick="closeConfigModal()" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
+    <!-- 2. Config Modal -->
+    <div id="configModal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl transform transition-all scale-95 opacity-0 modal-content overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-800/30">
+                <h3 class="text-white font-bold text-sm uppercase tracking-wide"><i class="fas fa-cogs text-slate-400 mr-2"></i> Configurações</h3>
+                <button onclick="closeModal('configModal')" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
-                
-                <!-- Beta Features -->
+            
+            <div class="p-6 space-y-6 overflow-y-auto custom-scroll flex-1">
+                <!-- Permissions (New) -->
                 <div>
-                    <h4 class="text-xs font-bold text-purple-400 uppercase mb-3">Funcionalidades Beta</h4>
-                    <div class="space-y-3 bg-black/20 p-3 rounded-lg border border-slate-700/50">
-                        <label class="flex items-center justify-between cursor-pointer group">
-                            <span class="text-sm text-slate-300 group-hover:text-white transition">Balanceamento com IA</span>
-                            <input type="checkbox" id="flagAiBalance" class="w-4 h-4 rounded border-slate-600 bg-slate-800 text-purple-600 focus:ring-purple-500/50">
+                    <h4 class="text-[10px] font-bold text-emerald-400 uppercase mb-3 tracking-widest">Permissões de Usuário (Público)</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-950/50 p-2 rounded border border-slate-800">
+                            <input type="checkbox" id="permAdd" class="accent-emerald-500 rounded">
+                            <span class="text-xs text-slate-300">Adicionar Player</span>
                         </label>
-                        <label class="flex items-center justify-between cursor-pointer group">
-                            <span class="text-sm text-slate-300 group-hover:text-white transition">Coach IA (Análise)</span>
-                            <input type="checkbox" id="flagAiCoach" class="w-4 h-4 rounded border-slate-600 bg-slate-800 text-purple-600 focus:ring-purple-500/50">
+                         <label class="flex items-center gap-2 cursor-pointer bg-slate-950/50 p-2 rounded border border-slate-800">
+                            <input type="checkbox" id="permEdit" class="accent-emerald-500 rounded">
+                            <span class="text-xs text-slate-300">Editar Player</span>
+                        </label>
+                         <label class="flex items-center gap-2 cursor-pointer bg-slate-950/50 p-2 rounded border border-slate-800">
+                            <input type="checkbox" id="permDel" class="accent-emerald-500 rounded">
+                            <span class="text-xs text-slate-300">Excluir Player</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-950/50 p-2 rounded border border-slate-800">
+                            <input type="checkbox" id="permBalance" class="accent-emerald-500 rounded">
+                            <span class="text-xs text-slate-300">Equilibrar</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-950/50 p-2 rounded border border-slate-800">
+                            <input type="checkbox" id="permClear" class="accent-emerald-500 rounded">
+                            <span class="text-xs text-slate-300">Limpar</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- Text Config -->
+                <!-- Feature Flags -->
                 <div>
-                    <h4 class="text-xs font-bold text-blue-400 uppercase mb-3">Personalização de Texto</h4>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="text-[10px] text-slate-500 uppercase font-bold">Título da Cópia</label>
-                            <input type="text" id="cfgCopyTitle" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none transition">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-500 uppercase font-bold">Rodapé da Cópia</label>
-                            <input type="text" id="cfgCopyFooter" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none transition">
-                        </div>
+                    <h4 class="text-[10px] font-bold text-purple-400 uppercase mb-3 tracking-widest">Funcionalidades Beta (IA)</h4>
+                    <div class="space-y-3 bg-black/20 p-3 rounded-lg border border-slate-700/50">
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <span class="text-xs text-slate-300 font-medium">Habilitar Balanceamento IA</span>
+                            <input type="checkbox" id="cfgAiBalance" class="accent-purple-500 w-4 h-4 rounded bg-slate-800 border-slate-600">
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <span class="text-xs text-slate-300 font-medium">Habilitar Coach IA (Análise)</span>
+                            <input type="checkbox" id="cfgAiCoach" class="accent-purple-500 w-4 h-4 rounded bg-slate-800 border-slate-600">
+                        </label>
                     </div>
                 </div>
 
                 <!-- API Keys -->
                 <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Chaves de API (Admin)</h4>
+                    <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-widest">Credenciais de API</h4>
                     <div class="space-y-3">
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase font-bold">Provedor IA</label>
-                            <select id="aiProvider" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white outline-none">
-                                <option value="gemini">Google Gemini</option>
-                                <option value="groq">Groq Cloud</option>
-                            </select>
+                            <label class="text-[10px] text-slate-500 uppercase font-bold">Chave Gemini / Groq</label>
+                            <input type="password" id="cfgAiKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-purple-500 outline-none transition font-mono" placeholder="sk-...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text Customization -->
+                <div>
+                    <h4 class="text-[10px] font-bold text-blue-400 uppercase mb-3 tracking-widest">Personalização Cópia</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase font-bold">Título</label>
+                            <input type="text" id="cfgCopyTitle" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="Ex: @everyone MIX DA NOITE">
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase font-bold">Chave da IA</label>
-                            <input type="password" id="cfgApiKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-purple-500 outline-none transition" placeholder="Cole a chave aqui...">
+                            <label class="text-[10px] text-slate-500 uppercase font-bold">Rodapé</label>
+                            <input type="text" id="cfgCopyFooter" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="Ex: IP no privado">
                         </div>
                     </div>
                 </div>
-                
-                <!-- Firebase (Local) -->
-                <div class="pt-4 border-t border-slate-700">
-                    <h4 class="text-xs font-bold text-orange-400 uppercase mb-3">Conexão do Banco</h4>
-                    <div>
-                        <label class="text-[10px] text-slate-500 uppercase font-bold">Firebase API Key</label>
-                        <input type="text" id="fbApiKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-orange-500 outline-none transition">
-                        <p class="text-[10px] text-slate-600 mt-1">Deixe vazio para usar a configuração padrão.</p>
-                    </div>
-                    <div class="mt-2 text-right">
-                        <button onclick="clearLocalStorage()" class="text-xs text-red-500 hover:text-red-400 underline">Resetar Conexão Local</button>
-                    </div>
-                </div>
 
-            </div>
-            <div class="bg-slate-800/50 p-4 border-t border-slate-700 flex justify-end gap-3">
-                <button onclick="closeConfigModal()" class="px-4 py-2 text-slate-400 hover:text-white text-sm transition">Cancelar</button>
-                <button onclick="saveConfig()" class="btn-primary text-white px-6 py-2 rounded-lg font-bold text-sm shadow-lg">SALVAR ALTERAÇÕES</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Player Modal -->
-    <div id="joinModal" class="hidden fixed inset-0 bg-black/80 z-[100] items-center justify-center backdrop-blur-sm p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm shadow-2xl">
-            <div class="p-5 border-b border-slate-700 flex justify-between items-center">
-                <h3 class="text-white font-bold flex items-center gap-2"><i class="fas fa-user-plus text-blue-500"></i> <span id="modalTitle">Adicionar</span></h3>
-                <button onclick="closeJoinModal()" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="p-5 space-y-4">
-                <input type="hidden" id="editPlayerId">
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Nick</label>
-                    <input type="text" id="inputName" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-blue-500 outline-none mt-1">
+                <!-- Firebase Local Config -->
+                <div class="pt-4 border-t border-slate-800">
+                    <h4 class="text-[10px] font-bold text-orange-400 uppercase mb-3 tracking-widest">Conexão Local (Navegador)</h4>
+                    <p class="text-[10px] text-slate-500 mb-2">Salva no localStorage. Recarregue a página após alterar.</p>
+                    <input type="text" id="localFbKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-orange-500 outline-none mb-2 font-mono" placeholder="Firebase API Key">
+                    <input type="text" id="localFbProject" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-orange-500 outline-none font-mono" placeholder="Project ID">
+                    <button onclick="clearLocalStorage()" class="text-[10px] text-red-500 hover:text-red-400 underline mt-2">Limpar Config Local</button>
                 </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase">Link Leetify (Opcional)</label>
-                    <input type="text" id="inputUrl" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 text-sm focus:border-blue-500 outline-none mt-1">
-                </div>
-                <div>
-                    <div class="flex justify-between">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Rating</label>
-                        <button onclick="openHelpModal()" class="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1"><i class="fas fa-question-circle"></i> Ajuda</button>
-                    </div>
-                    <input type="number" id="inputRating" step="0.01" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono text-lg focus:border-blue-500 outline-none mt-1" placeholder="0.00">
-                </div>
-                <button onclick="savePlayer()" class="w-full btn-primary text-white py-3 rounded-lg font-bold shadow-lg mt-2">SALVAR JOGADOR</button>
+            </div>
+            
+            <div class="p-4 border-t border-slate-800 bg-slate-800/30 flex justify-end gap-3">
+                <button onclick="closeModal('configModal')" class="px-4 py-2 text-slate-400 hover:text-white text-xs transition">Cancelar</button>
+                <button onclick="saveGlobalConfig()" class="btn-primary text-white px-6 py-2 rounded-lg font-bold text-xs shadow-lg">SALVAR</button>
             </div>
         </div>
     </div>
 
-    <!-- AI Output Modal -->
-    <div id="aiModal" class="hidden fixed inset-0 bg-black/90 z-[110] items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-slate-900 border border-purple-500/50 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="bg-gradient-to-r from-purple-900/50 to-slate-900 p-4 border-b border-purple-500/20 flex justify-between items-center">
-                <h3 class="text-white font-bold flex items-center gap-2"><i class="fas fa-robot text-purple-400"></i> Coach IA</h3>
-                <button onclick="closeAiModal()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+    <!-- 3. AI Analysis Modal -->
+    <div id="aiAnalysisModal" class="hidden fixed inset-0 bg-black/90 z-[120] flex items-center justify-center backdrop-blur-sm p-4 transition-opacity">
+        <div class="bg-slate-900 border border-purple-500/30 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[80vh] modal-content">
+            <div class="bg-gradient-to-r from-purple-900/40 to-slate-900 p-4 border-b border-purple-500/20 flex justify-between items-center">
+                <h3 class="text-white font-bold text-sm uppercase flex items-center gap-2"><i class="fas fa-robot text-purple-400"></i> Relatório do Coach</h3>
+                <button onclick="closeModal('aiAnalysisModal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            <div id="aiContent" class="p-6 overflow-y-auto text-sm text-slate-300 space-y-4 custom-scroll"></div>
-        </div>
-    </div>
-    
-    <!-- Help Modal -->
-    <div id="helpModal" class="hidden fixed inset-0 bg-black/80 z-[120] items-center justify-center backdrop-blur-sm p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xs shadow-2xl p-6 relative">
-            <button onclick="closeHelpModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 class="text-lg font-bold text-white mb-4">Como ver o Rating?</h3>
-            <div class="space-y-4 text-sm text-slate-400">
-                <p>1. Acesse seu perfil no <strong>Leetify</strong>.</p>
-                <p>2. O número grande no topo do perfil é o seu <strong>Leetify Rating</strong>.</p>
-                <div class="bg-black/40 p-3 rounded-lg border border-slate-800 text-center">
-                    <span class="text-green-400 font-mono font-bold text-xl">+1.52</span>
-                    <div class="text-[10px] text-slate-600 uppercase mt-1">Exemplo</div>
-                </div>
+            <div id="aiContentBody" class="p-6 overflow-y-auto custom-scroll text-sm text-slate-300 space-y-4">
+                <!-- Markdown content -->
             </div>
-            <a href="https://leetify.com" target="_blank" class="block w-full bg-slate-800 hover:bg-slate-700 text-white text-center py-2.5 rounded-lg mt-6 text-sm font-bold transition">Abrir Leetify</a>
         </div>
     </div>
 
-    <!-- Confirm Modal -->
-    <div id="confirmModal" class="hidden fixed inset-0 bg-black/80 z-[130] items-center justify-center backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-100 transition-all">
-            <h3 class="text-xl font-bold text-white mb-2">Tem certeza?</h3>
-            <p id="confirmMessage" class="text-slate-400 text-sm mb-6">Essa ação não pode ser desfeita.</p>
-            <div class="flex gap-3">
-                <button onclick="closeConfirmModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-lg font-bold text-sm transition">Cancelar</button>
-                <button id="btnConfirmYes" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-lg font-bold text-sm transition shadow-lg shadow-red-900/20">Confirmar</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Simple Alert Modal -->
-    <div id="msgModal" class="hidden fixed inset-0 bg-black/80 z-[140] items-center justify-center backdrop-blur-sm">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center">
-            <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-500 text-xl"><i class="fas fa-info"></i></div>
-            <p id="msgText" class="text-slate-200 mb-6 font-medium">Mensagem do sistema</p>
-            <button onclick="document.getElementById('msgModal').classList.add('hidden')" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-lg font-bold text-sm transition">OK</button>
-        </div>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/80 z-[200] items-center justify-center backdrop-blur-md flex-col">
+        <div class="loader mb-4"></div>
+        <h2 class="text-white font-display font-bold text-xl tracking-wide">PROCESSANDO</h2>
+        <p class="text-xs text-slate-500 mt-2 font-mono">Consultando oráculo digital...</p>
     </div>
 
-    <!-- Firebase Scripts -->
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global State
-        let db, auth, appId;
-        let isAdmin = false;
-        let players = [];
-        let currentMatch = null;
-        let globalConfig = { apiKey: null, provider: 'gemini', copyTitle: '', copyFooter: '', aiBalanceEnabled: false, aiCoachEnabled: false };
-        let idleTimer;
-        let confirmCallback = null;
-        let generatedHistory = new Set();
+        // --- STATE MANAGEMENT ---
+        const state = {
+            isAdmin: false,
+            players: [],
+            match: null,
+            config: {
+                aiBalance: false,
+                aiCoach: false,
+                copyTitle: "**MIX CS2**",
+                copyFooter: "",
+                apiKey: "",
+                permissions: {
+                    add: false,
+                    edit: false,
+                    del: false,
+                    balance: false,
+                    clear: false
+                }
+            },
+            localConfig: JSON.parse(localStorage.getItem('cs2_fb_config') || 'null')
+        };
 
-        // Configurações Padrão
-        const manualFirebaseConfig = {
+        let db, auth;
+
+        // Default Firebase Config (Fallback)
+        const defaultFbConfig = {
             apiKey: "AIzaSyCweAYYW0_dV8iy9Zc3j3RWgJPrfIYaUP0",
             authDomain: "cs2mix.firebaseapp.com",
             projectId: "cs2mix",
             storageBucket: "cs2mix.firebasestorage.app",
             messagingSenderId: "1022628125916",
-            appId: "1:1022628125916:web:50866d4b31b618e8342819",
-            measurementId: "G-B8FZSQ47GM"
+            appId: "1:1022628125916:web:50866d4b31b618e8342819"
         };
 
-        function getLocalFirebaseConfig() {
-            const stored = localStorage.getItem('cs2_firebase_conf');
-            try { return stored ? JSON.parse(stored) : null; } catch(e) { return null; }
-        }
-
         // --- INIT ---
-        async function init() {
-            // Setup Idle Timer
-            ['onload', 'onmousemove', 'onkeypress', 'onclick'].forEach(evt => window[evt] = resetIdleTimer);
-
-            // Setup Firebase
-            let config = getLocalFirebaseConfig() || manualFirebaseConfig;
-            appId = config.projectId || 'cs2mix';
-
+        async function initApp() {
             try {
-                const app = initializeApp(config);
+                const configToUse = state.localConfig || defaultFbConfig;
+                const app = initializeApp(configToUse);
                 auth = getAuth(app);
                 db = getFirestore(app);
-                
-                if (!auth.currentUser) await signInAnonymously(auth);
-            } catch(e) { console.error("Firebase Init Error:", e); }
 
-            // Auth Listener
-            onAuthStateChanged(auth, (user) => {
-                if(user) {
-                    isAdmin = (user.email === 'hxt.dll@gmail.com');
-                    updateUIState();
-                    setupDataListeners();
-                    resetIdleTimer();
-                } else {
-                    isAdmin = false;
-                    updateUIState();
+                // Load local inputs
+                if(state.localConfig) {
+                    document.getElementById('localFbKey').value = state.localConfig.apiKey;
+                    document.getElementById('localFbProject').value = state.localConfig.projectId;
                 }
-            });
-            
-            // UI Init
-            if(config.apiKey && document.getElementById('fbApiKey')) document.getElementById('fbApiKey').value = config.apiKey;
-            const copyBtn = document.getElementById('copyBtn');
-            if(copyBtn) copyBtn.addEventListener('mouseenter', updateTooltipPreview);
+                
+                // Load Saved Admin Credentials
+                const savedUser = localStorage.getItem('cs2_admin_user');
+                const savedPass = localStorage.getItem('cs2_admin_pass'); 
+                if(savedUser && savedPass) {
+                    document.getElementById('loginEmail').value = savedUser;
+                    document.getElementById('loginPass').value = atob(savedPass); 
+                    document.getElementById('saveLogin').checked = true;
+                }
+
+                // Auth Listener
+                onAuthStateChanged(auth, (user) => {
+                    const led = document.getElementById('statusLed');
+                    const label = document.getElementById('statusLabel');
+                    
+                    if (user) {
+                        state.isAdmin = (user.email === 'hxt.dll@gmail.com');
+                        
+                        led.className = "w-2 h-2 rounded-full bg-emerald-500 animate-status";
+                        label.innerText = state.isAdmin ? "ADMIN ONLINE" : "CONECTADO";
+                        label.className = state.isAdmin ? "text-[10px] font-bold text-emerald-400 uppercase tracking-wider" : "text-[10px] font-bold text-slate-400 uppercase tracking-wider";
+                        
+                        setupListeners();
+                        updateUiAuth();
+                    } else {
+                        signInAnonymously(auth).catch(e => console.error("Anon Auth Failed", e));
+                        led.className = "w-2 h-2 rounded-full bg-red-500";
+                        label.innerText = "OFFLINE";
+                    }
+                });
+
+            } catch (error) {
+                console.error("Critical Init Error:", error);
+                showToast("Erro crítico na inicialização do Firebase", "error");
+            }
         }
 
-        // --- CORE FUNCTIONS ---
-
-        function updateUIState() {
-            // Navbar
-            const loginBtn = document.getElementById('navLoginBtn');
-            const adminBtns = document.getElementById('adminControls');
-            const statusText = document.getElementById('statusText');
-            const statusDot = document.getElementById('statusDot');
-
-            if(isAdmin) {
-                loginBtn?.classList.add('hidden');
-                adminBtns?.classList.remove('hidden');
-            } else {
-                loginBtn?.classList.remove('hidden');
-                adminBtns?.classList.add('hidden');
-            }
-
-            if(auth?.currentUser) {
-                statusText.innerText = "ONLINE";
-                statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-status";
-            }
-        }
-
-        function setupDataListeners() {
+        function setupListeners() {
             // Players Listener
-            const playersCol = collection(db, 'players');
-            onSnapshot(query(playersCol), (snapshot) => {
-                players = [];
-                snapshot.forEach(doc => players.push({ id: doc.id, ...doc.data() }));
-                // Sort by ID (timestamp) to keep order stable
-                players.sort((a,b) => a.id.localeCompare(b.id));
-                renderPlayerList();
+            onSnapshot(query(collection(db, 'players')), (snapshot) => {
+                state.players = [];
+                snapshot.forEach(doc => state.players.push({ id: doc.id, ...doc.data() }));
+                state.players.sort((a,b) => a.name.localeCompare(b.name));
+                renderPlayers();
             });
 
             // Match Listener
-            onSnapshot(doc(db, 'matches', 'current'), (doc) => {
-                if(doc.exists()) {
-                    currentMatch = doc.data();
-                    if(currentMatch.teamA && currentMatch.teamA.length > 0) {
-                        displayResults(currentMatch);
-                    } else {
-                        document.getElementById('resultsArea').classList.add('hidden');
-                        document.getElementById('placeholderResult').classList.remove('hidden');
-                    }
-                    updateCoachButton(currentMatch.analysis);
+            onSnapshot(doc(db, 'matches', 'current'), (docSnap) => {
+                if(docSnap.exists()) {
+                    state.match = docSnap.data();
+                    renderResults();
+                } else {
+                    state.match = null;
+                    renderResults();
                 }
             });
 
             // Config Listener
-            onSnapshot(doc(collection(db, 'config'), 'global'), (doc) => {
-                if(doc.exists()) {
-                    const data = doc.data();
-                    globalConfig = { ...globalConfig, ...data };
-                    updateConfigUI();
+            onSnapshot(doc(db, 'config', 'global'), (docSnap) => {
+                if(docSnap.exists()) {
+                    const data = docSnap.data();
+                    state.config = { ...state.config, ...data };
+                    // Default safe permissions if missing in DB
+                    if(!state.config.permissions) {
+                        state.config.permissions = { add: true, edit: true, del: true, balance: true, clear: true };
+                    }
+                    updateConfigUi();
+                    // IMPORTANT: Directly update auth UI to reflect config changes instantly
+                    updateUiAuth(); 
                 }
-            }, (e) => console.log("Config read limited (expected for non-admin)"));
+            }, (error) => {
+                if(error.code === 'permission-denied') {
+                    console.warn("Modo Visitante: Leitura de config bloqueada pelo servidor.");
+                } else {
+                    console.error("Erro ao ler config:", error);
+                }
+            });
         }
 
-        function updateConfigUI() {
-            // Update AI Toggle state in UI
-            const aiToggle = document.getElementById('useAiToggle');
-            const aiLabel = document.getElementById('aiToggleText');
-            const aiContainer = document.getElementById('aiSelectContainer');
-            
-            if(globalConfig.aiBalanceEnabled) {
-                aiToggle.disabled = false;
-                document.getElementById('aiToggleLabel')?.classList.remove('ai-disabled');
-                if(aiLabel) aiLabel.innerText = "Usar IA";
+        // --- UI UPDATERS ---
+        function updateUiAuth() {
+            const loginBtn = document.getElementById('loginTrigger');
+            const adminMenu = document.getElementById('adminMenu');
+            const aiToggle = document.getElementById('aiToggle');
+            const aiLabel = document.getElementById('aiLabel');
+            const aiProviderSelect = document.getElementById('aiProviderSelect');
+
+            if (state.isAdmin) {
+                loginBtn.classList.add('hidden');
+                adminMenu.classList.remove('hidden');
+                
+                aiLabel.innerText = state.config.aiBalance ? "IA (Ativa)" : "IA (Inativa)";
+                aiToggle.disabled = !state.config.aiBalance;
+                
+                // Admin can always toggle if enabled globally
+                if (!state.config.aiBalance) {
+                    aiToggle.checked = false;
+                    aiProviderSelect.classList.add('hidden');
+                }
             } else {
-                aiToggle.disabled = true;
-                aiToggle.checked = false;
-                aiContainer.classList.add('hidden');
-                document.getElementById('aiToggleLabel')?.classList.add('ai-disabled');
-                if(aiLabel) aiLabel.innerText = "IA (Dev)";
+                loginBtn.classList.remove('hidden');
+                adminMenu.classList.add('hidden');
+                
+                // Visitors logic
+                if (state.config.aiBalance) {
+                    aiLabel.innerText = "IA (Disponível)";
+                    aiToggle.disabled = false; 
+                } else {
+                    aiLabel.innerText = "IA (Desativada)";
+                    aiToggle.disabled = true;
+                    aiToggle.checked = false; // Force uncheck visual
+                    aiProviderSelect.classList.add('hidden'); // Force hide select
+                }
             }
-
-            // Update Coach Button state
-            updateCoachButton(currentMatch?.analysis);
-
-            // Update Inputs (Admin only visual)
-            if(isAdmin) {
-                document.getElementById('cfgApiKey').value = globalConfig.apiKey || '';
-                document.getElementById('aiProvider').value = globalConfig.provider || 'gemini';
-                document.getElementById('cfgCopyTitle').value = globalConfig.copyTitle || '';
-                document.getElementById('cfgCopyFooter').value = globalConfig.copyFooter || '';
-                document.getElementById('flagAiBalance').checked = globalConfig.aiBalanceEnabled;
-                document.getElementById('flagAiCoach').checked = globalConfig.aiCoachEnabled;
-            }
-        }
-
-        function updateCoachButton(hasAnalysis) {
-            const btn = document.getElementById('coachBtn');
-            const txt = document.getElementById('coachBtnText');
-            const gradient = document.getElementById('coachBtnGradient');
-
-            if(globalConfig.aiCoachEnabled && globalConfig.apiKey) {
-                btn.disabled = false;
-                btn.classList.remove('cursor-not-allowed', 'bg-slate-800', 'text-slate-500');
-                btn.classList.add('text-white');
-                gradient.classList.remove('opacity-0');
-                txt.innerHTML = hasAnalysis ? '<i class="fas fa-eye mr-2"></i> VER ANÁLISE SALVA' : '<i class="fas fa-magic mr-2"></i> ANÁLISE DO COACH IA';
-            } else {
-                btn.disabled = true;
-                btn.classList.add('cursor-not-allowed', 'bg-slate-800', 'text-slate-500');
-                gradient.classList.add('opacity-0');
-                txt.innerHTML = '<i class="fas fa-tools mr-2"></i> COACH IA (EM DESENVOLVIMENTO)';
-            }
-        }
-
-        function renderPlayerList() {
-            const list = document.getElementById('playersList');
-            document.getElementById('playerCount').innerText = players.length;
             
-            if(players.length === 0) {
-                list.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-10 text-slate-600 border-2 border-dashed border-slate-800 rounded-xl"><i class="fas fa-user-astronaut text-3xl mb-2"></i><span class="text-sm">Lobby vazio</span></div>`;
+            applyPermissions();
+        }
+
+        function applyPermissions() {
+            const p = state.config.permissions;
+            const isAdm = state.isAdmin;
+
+            const setVisibility = (id, allowed) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (isAdm || allowed) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            };
+
+            setVisibility('btnAddPlayer', p.add);
+            setVisibility('balanceBtn', p.balance);
+            setVisibility('btnClear', p.clear);
+            
+            renderPlayers();
+        }
+
+        function renderPlayers() {
+            const grid = document.getElementById('playersGrid');
+            document.getElementById('countDisplay').innerText = state.players.length;
+            
+            if (state.players.length === 0) {
+                grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-12 text-slate-600 border-2 border-dashed border-slate-800 rounded-xl bg-slate-900/20"><i class="fas fa-ghost text-3xl mb-3 opacity-50"></i><span class="text-sm font-medium">Lobby vazio...</span></div>`;
                 return;
             }
 
-            list.innerHTML = players.map(p => {
-                const leetifyId = p.url ? p.url.split('/').filter(Boolean).pop() : '-';
-                return `
-                <div class="glass-panel p-3 rounded-xl flex justify-between items-center group hover:bg-slate-800/50 transition">
-                    <div class="flex flex-col">
+            const p = state.config.permissions;
+            const isAdm = state.isAdmin;
+            const canEdit = isAdm || p.edit;
+            const canDel = isAdm || p.del;
+
+            grid.innerHTML = state.players.map(pl => `
+                <div class="glass-panel p-3 rounded-xl flex justify-between items-center group hover:bg-slate-800/60 transition border border-white/5 relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 ${pl.rating >= 0 ? 'bg-emerald-500/50' : 'bg-red-500/50'}"></div>
+                    <div class="flex flex-col pl-2">
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-white text-sm">${p.name}</span>
-                            ${p.url ? `<a href="${p.url}" target="_blank" class="text-slate-500 hover:text-blue-400 transition"><i class="fas fa-external-link-alt text-[10px]"></i></a>` : ''}
+                            <span class="font-bold text-white text-sm tracking-wide">${pl.name}</span>
+                            ${pl.url ? `<a href="${pl.url}" target="_blank" class="text-slate-600 hover:text-blue-400 transition"><i class="fas fa-link text-[10px]"></i></a>` : ''}
                         </div>
-                        <span class="text-[10px] font-mono text-slate-500">ID: ${leetifyId}</span>
+                        <span class="text-[10px] font-mono text-slate-500">R: ${Number(pl.rating).toFixed(2)}</span>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="font-mono font-bold ${p.rating >= 0 ? 'text-emerald-400' : 'text-red-400'} text-sm">${p.rating > 0 ? '+' : ''}${p.rating.toFixed(2)}</span>
-                        <div class="flex gap-1 opacity-50 group-hover:opacity-100 transition">
-                            <button onclick="editPlayer('${p.id}')" class="p-1.5 hover:text-blue-400 transition"><i class="fas fa-pencil-alt text-xs"></i></button>
-                            <button onclick="deletePlayer('${p.id}')" class="p-1.5 hover:text-red-400 transition"><i class="fas fa-times text-xs"></i></button>
-                        </div>
+                    
+                    <div class="flex items-center gap-2">
+                        ${canEdit ? `
+                        <button onclick="window.triggerEdit('${pl.id}')" class="w-7 h-7 flex items-center justify-center rounded bg-slate-800 hover:text-blue-400 text-slate-500 transition"><i class="fas fa-pencil-alt text-[10px]"></i></button>
+                        ` : ''}
+                        ${canDel ? `
+                        <button onclick="window.triggerDelete('${pl.id}')" class="w-7 h-7 flex items-center justify-center rounded bg-slate-800 hover:text-red-400 text-slate-500 transition"><i class="fas fa-trash text-[10px]"></i></button>
+                        ` : ''}
+                        ${!canEdit && !canDel ? `<span class="w-2 h-2 rounded-full bg-slate-700"></span>` : ''}
                     </div>
-                </div>`;
-            }).join('');
+                </div>
+            `).join('');
         }
 
-        function displayResults(data) {
-            const { teamA, teamB, reserves } = data;
-            const avgA = teamA.reduce((a,b) => a + Number(b.rating), 0) / 5;
-            const avgB = teamB.reduce((a,b) => a + Number(b.rating), 0) / 5;
+        function renderResults() {
+            const empty = document.getElementById('emptyState');
+            const results = document.getElementById('resultsState');
+            
+            if (!state.match || (!state.match.teamA && !state.match.teamB)) {
+                empty.classList.remove('hidden');
+                results.classList.add('hidden');
+                results.classList.remove('flex');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            results.classList.remove('hidden');
+            results.classList.add('flex');
+
+            const { teamA, teamB, reserves, analysis } = state.match;
+
+            const avgA = teamA.length ? teamA.reduce((a,b)=>a+Number(b.rating),0)/5 : 0;
+            const avgB = teamB.length ? teamB.reduce((a,b)=>a+Number(b.rating),0)/5 : 0;
             const diff = Math.abs(avgA - avgB);
 
-            document.getElementById('resultsArea').classList.remove('hidden');
-            document.getElementById('placeholderResult').classList.add('hidden');
-
-            document.getElementById('scoreA').innerText = `Avg: ${avgA.toFixed(2)}`;
-            document.getElementById('scoreB').innerText = `Avg: ${avgB.toFixed(2)}`;
-            
-            const diffEl = document.getElementById('diffDisplay');
-            diffEl.innerText = `Diff: ${diff.toFixed(2)}`;
-            diffEl.className = diff < 0.5 ? "text-center text-[10px] text-emerald-400 font-mono bg-emerald-900/20 px-2 py-0.5 rounded border border-emerald-800/50" : "text-center text-[10px] text-yellow-400 font-mono bg-yellow-900/20 px-2 py-0.5 rounded border border-yellow-800/50";
+            document.getElementById('avgA').innerText = avgA.toFixed(2);
+            document.getElementById('avgB').innerText = avgB.toFixed(2);
+            const badge = document.getElementById('diffBadge');
+            badge.innerText = `Diff: ${diff.toFixed(2)}`;
+            badge.className = diff < 0.5 
+                ? "text-[10px] font-mono font-bold bg-emerald-900/30 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30"
+                : "text-[10px] font-mono font-bold bg-yellow-900/30 text-yellow-400 px-2 py-0.5 rounded border border-yellow-500/30";
 
             const renderRow = (p) => `
-                <div class="flex justify-between items-center py-1.5 px-2 border-b border-white/5 last:border-0 hover:bg-white/5 transition rounded">
-                    <span class="text-xs font-medium text-slate-200 truncate w-24">${p.name}</span>
-                    <span class="font-mono text-xs ${p.rating >= 0 ? 'text-emerald-400' : 'text-red-400'}">${p.rating > 0 ? '+' : ''}${Number(p.rating).toFixed(2)}</span>
+                <div class="flex justify-between items-center py-2 px-2 border-b border-white/5 last:border-0 hover:bg-white/5 transition rounded-sm">
+                    <span class="text-xs font-medium text-slate-200 truncate max-w-[120px]">${p.name}</span>
+                    <span class="font-mono text-[10px] ${p.rating >= 0 ? 'text-emerald-400' : 'text-red-400'}">${p.rating > 0 ? '+' : ''}${Number(p.rating).toFixed(2)}</span>
                 </div>`;
+            
+            document.getElementById('listA').innerHTML = teamA.sort((a,b)=>b.rating-a.rating).map(renderRow).join('');
+            document.getElementById('listB').innerHTML = teamB.sort((a,b)=>b.rating-a.rating).map(renderRow).join('');
 
-            document.getElementById('listA').innerHTML = teamA.sort((a,b) => b.rating - a.rating).map(renderRow).join('');
-            document.getElementById('listB').innerHTML = teamB.sort((a,b) => b.rating - a.rating).map(renderRow).join('');
-
-            // Reserves
-            const resContainer = document.getElementById('reservesContainer');
+            const rBox = document.getElementById('reservesBox');
             if (reserves && reserves.length > 0) {
-                resContainer.classList.remove('hidden');
+                rBox.classList.remove('hidden');
                 document.getElementById('listReserves').innerHTML = reserves.map(p => 
-                    `<div class="bg-slate-800/50 px-2 py-1 rounded text-[10px] text-slate-400 border border-slate-700">${p.name}</div>`
+                    `<div class="bg-slate-800/80 px-2 py-1 rounded text-[10px] text-slate-400 border border-slate-700 shadow-sm">${p.name}</div>`
                 ).join('');
             } else {
-                resContainer.classList.add('hidden');
+                rBox.classList.add('hidden');
+            }
+
+            const coachBtn = document.getElementById('coachBtn');
+            const coachText = document.getElementById('coachBtnText');
+            
+            if (state.config.aiCoach) {
+                coachBtn.disabled = false;
+                if (analysis) {
+                    coachText.innerText = "LER ANÁLISE SALVA";
+                    coachBtn.classList.add('border-purple-500/50');
+                } else {
+                    coachText.innerText = "ANÁLISE DO COACH IA";
+                    coachBtn.classList.remove('border-purple-500/50');
+                }
+            } else {
+                coachBtn.disabled = true;
+                coachText.innerText = "COACH IA (INDISPONÍVEL)";
             }
         }
 
-        // --- ACTIONS ---
+        function updateConfigUi() {
+            document.getElementById('cfgAiBalance').checked = state.config.aiBalance;
+            document.getElementById('cfgAiCoach').checked = state.config.aiCoach;
+            
+            const p = state.config.permissions || { add: true, edit: true, del: true, balance: true, clear: true };
+            document.getElementById('permAdd').checked = p.add;
+            document.getElementById('permEdit').checked = p.edit;
+            document.getElementById('permDel').checked = p.del;
+            document.getElementById('permBalance').checked = p.balance;
+            document.getElementById('permClear').checked = p.clear;
 
-        window.manualRefresh = function() {
-            const icon = document.getElementById('refreshIcon');
-            icon.classList.add('fa-spin');
-            setupListener(); // Force refresh listener
-            setTimeout(() => icon.classList.remove('fa-spin'), 1000);
+            document.getElementById('cfgAiKey').value = state.config.apiKey || "";
+            document.getElementById('cfgCopyTitle').value = state.config.copyTitle || "";
+            document.getElementById('cfgCopyFooter').value = state.config.copyFooter || "";
+            
+            updateUiAuth();
         }
 
-        window.savePlayer = async function() {
+        // --- CORE FUNCTIONS ---
+
+        window.handleBalance = async () => {
+            if (state.players.length < 10) return showToast("Precisa de 10 jogadores!", "error");
+            
+            const useAi = document.getElementById('aiToggle').checked;
+            const provider = document.getElementById('aiProvider').value;
+            
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('loadingOverlay').classList.add('flex');
+
+            try {
+                let pool = [...state.players].sort(() => Math.random() - 0.5);
+                let reserves = pool.slice(10);
+                let active = pool.slice(0, 10);
+
+                let resultA = [], resultB = [];
+
+                if (useAi && state.config.aiBalance && state.config.apiKey) {
+                    const json = await callAiForTeams(active, provider);
+                    resultA = active.filter(p => json.teamA.includes(p.id));
+                    resultB = active.filter(p => json.teamB.includes(p.id));
+                    
+                    if (resultA.length !== 5 || resultB.length !== 5) throw new Error("IA retornou IDs inválidos");
+
+                } else {
+                    const { a, b } = calculateMathTeams(active);
+                    resultA = a;
+                    resultB = b;
+                }
+
+                await setDoc(doc(db, 'matches', 'current'), {
+                    teamA: resultA,
+                    teamB: resultB,
+                    reserves: reserves,
+                    analysis: null,
+                    timestamp: new Date().toISOString()
+                });
+
+            } catch (err) {
+                console.error(err);
+                showToast("Erro no balanceamento: " + err.message, "error");
+            } finally {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('loadingOverlay').classList.remove('flex');
+            }
+        };
+
+        function calculateMathTeams(pool) {
+            const target = pool.reduce((acc, p) => acc + Number(p.rating), 0) / 2;
+            let bestDiff = Infinity;
+            let bestCombo = [];
+
+            const getCombinations = (arr, k) => {
+                let i, subI, ret = [], sub, next;
+                for(i = 0; i < arr.length; i++){
+                    if(k === 1){
+                        ret.push( [ arr[i] ] );
+                    }else{
+                        sub = getCombinations(arr.slice(i+1, arr.length), k-1);
+                        for(subI = 0; subI < sub.length; subI++ ){
+                            next = sub[subI];
+                            next.unshift(arr[i]);
+                            ret.push( next );
+                        }
+                    }
+                }
+                return ret;
+            }
+
+            const combos = getCombinations(pool, 5);
+            
+            for(let combo of combos) {
+                const sum = combo.reduce((a, b) => a + Number(b.rating), 0);
+                const diff = Math.abs(target - sum);
+                if (diff < bestDiff) {
+                    bestDiff = diff;
+                    bestCombo = combo;
+                }
+            }
+
+            const teamA = bestCombo;
+            const teamB = pool.filter(p => !teamA.some(a => a.id === p.id));
+            
+            return { a: teamA, b: teamB };
+        }
+
+        async function callAiForTeams(pool, provider) {
+            const prompt = `
+            Task: Split these 10 CS2 players into two balanced teams (5v5).
+            Strategy: Minimize rating difference.
+            Input: ${JSON.stringify(pool.map(p => ({id: p.id, rating: p.rating})))}
+            Output: JSON Object ONLY. Format: {"teamA": ["id1", "id2"...], "teamB": ["id6"...]}
+            No markdown, no text, just JSON.
+            `;
+
+            const txt = await fetchAiApi(prompt, provider, true);
+            const jsonStr = txt.replace(/```json/g, '').replace(/```/g, '').trim();
+            return JSON.parse(jsonStr);
+        }
+
+        window.handleAiCoach = async () => {
+            if (!state.match || !state.match.teamA) return;
+            
+            if (state.match.analysis) {
+                document.getElementById('aiContentBody').innerHTML = marked.parse(state.match.analysis);
+                openModal('aiAnalysisModal');
+                return;
+            }
+
+            if (!state.isAdmin && !state.config.aiCoach) return;
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            document.getElementById('loadingOverlay').classList.add('flex');
+
+            try {
+                const { teamA, teamB } = state.match;
+                const prompt = `
+                Act as a CS2 Coach and Comedian. Analyze this matchup:
+                Team A (Avg ${document.getElementById('avgA').innerText}): ${teamA.map(p => `${p.name} (${p.rating})`).join(', ')}
+                Team B (Avg ${document.getElementById('avgB').innerText}): ${teamB.map(p => `${p.name} (${p.rating})`).join(', ')}
+                
+                Provide:
+                1. Win Probability %.
+                2. Key Tactical Tip.
+                3. A "Roast" (funny comment) about the balance or a specific player rating.
+                Format in Markdown.
+                `;
+
+                const provider = document.getElementById('aiProvider').value;
+                const response = await fetchAiApi(prompt, provider, false);
+                
+                await setDoc(doc(db, 'matches', 'current'), { analysis: response }, { merge: true });
+                
+                document.getElementById('aiContentBody').innerHTML = marked.parse(response);
+                openModal('aiAnalysisModal');
+
+            } catch(e) {
+                showToast("Erro na IA: " + e.message, "error");
+            } finally {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                document.getElementById('loadingOverlay').classList.remove('flex');
+            }
+        };
+
+        async function fetchAiApi(prompt, provider, jsonMode) {
+            const apiKey = state.config.apiKey;
+            if(!apiKey) throw new Error("Chave de API não configurada");
+
+            let url, body, headers = { 'Content-Type': 'application/json' };
+
+            if (provider === 'groq') {
+                url = 'https://api.groq.com/openai/v1/chat/completions';
+                headers['Authorization'] = `Bearer ${apiKey}`;
+                body = JSON.stringify({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [{role: "user", content: prompt}],
+                    response_format: jsonMode ? {type: "json_object"} : {type: "text"}
+                });
+            } else {
+                url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                body = JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { responseMimeType: jsonMode ? "application/json" : "text/plain" }
+                });
+            }
+
+            const res = await fetch(url, { method: 'POST', headers, body });
+            const data = await res.json();
+            
+            if(!res.ok) throw new Error("API Request Failed");
+
+            if (provider === 'groq') return data.choices[0].message.content;
+            return data.candidates[0].content.parts[0].text;
+        }
+
+        // --- PLAYER CRUD ---
+        window.savePlayer = async () => {
+            const id = document.getElementById('playerId').value || 'p_' + Date.now();
             const name = document.getElementById('inputName').value.trim();
             const url = document.getElementById('inputUrl').value.trim();
             const rating = parseFloat(document.getElementById('inputRating').value);
-            const id = document.getElementById('editPlayerId').value || 'p_' + Date.now();
 
-            if (!name) return showToast("Nome é obrigatório!");
-            if (isNaN(rating)) return showToast("Rating inválido!");
+            if (!name || isNaN(rating)) return showToast("Preencha Nome e Rating", "error");
 
             try {
-                await setDoc(doc(db, 'players', id), { name, url, rating, id }, { merge: true });
-                closeJoinModal();
-                showToast("Jogador salvo!");
-            } catch(e) { console.error(e); showToast("Erro ao salvar."); }
-        }
+                await setDoc(doc(db, 'players', id), { id, name, url, rating }, { merge: true });
+                closeModal('playerModal');
+                showToast("Jogador salvo!", "success");
+            } catch (e) { showToast("Erro ao salvar", "error"); }
+        };
 
-        window.deletePlayer = function(id) {
-            showConfirm("Remover este jogador?", async () => {
+        window.openAddPlayerModal = () => {
+            document.getElementById('playerId').value = '';
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputUrl').value = '';
+            document.getElementById('inputRating').value = '';
+            document.getElementById('modalTitle').innerText = "Adicionar Jogador";
+            window.toggleHelpView(false); 
+            openModal('playerModal');
+        };
+
+        window.triggerEdit = (id) => {
+            const p = state.players.find(x => x.id === id);
+            if(p) {
+                document.getElementById('playerId').value = p.id;
+                document.getElementById('inputName').value = p.name;
+                document.getElementById('inputUrl').value = p.url;
+                document.getElementById('inputRating').value = p.rating;
+                document.getElementById('modalTitle').innerText = "Editar Jogador";
+                window.toggleHelpView(false); 
+                openModal('playerModal');
+            }
+        };
+
+        window.triggerDelete = async (id) => {
+            if(confirm("Remover este jogador permanentemente?")) {
                 await deleteDoc(doc(db, 'players', id));
-                showToast("Jogador removido.");
-            });
-        }
-
-        window.editPlayer = function(id) {
-            const p = players.find(x => x.id === id);
-            if(p) openJoinModal(p);
-        }
-
-        window.clearResults = async function() {
-            try {
-                await setDoc(doc(db, 'matches', 'current'), { teamA: [], teamB: [], timestamp: null, analysis: null });
-                generatedHistory.clear();
-            } catch(e) { showToast("Erro ao limpar."); }
-        }
-
-        window.balanceTeams = function() {
-            if (players.length < 10) return showToast("Precisa de pelo menos 10 jogadores!");
-            
-            const useAi = document.getElementById('useAiToggle').checked;
-            document.getElementById('loadingModal').classList.remove('hidden');
-            document.getElementById('loadingModal').classList.add('flex');
-
-            // Shuffle ALL players first (Aleatoriedade garantida)
-            const shuffled = [...players].sort(() => Math.random() - 0.5);
-            const pool = shuffled.slice(0, 10);
-            const reserves = shuffled.slice(10);
-
-            if (useAi && globalConfig.aiBalanceEnabled) {
-                performAiBalance(pool, reserves);
-            } else {
-                setTimeout(() => performMathBalance(pool, reserves), 600);
+                showToast("Jogador removido", "success");
             }
-        }
+        };
 
-        function performMathBalance(pool, reserves) {
-            // Helper to get combinations
-            const getCombos = (arr, k) => {
-                const result = [];
-                const f = (start, combo) => {
-                    if (combo.length === k) { result.push(combo); return; }
-                    for (let i = start; i < arr.length; i++) f(i + 1, [...combo, arr[i]]);
+        window.clearCurrentMatch = async () => {
+            await setDoc(doc(db, 'matches', 'current'), { teamA: null, teamB: null });
+        };
+
+        // --- ADMIN & CONFIG ---
+        window.handleLogin = async () => {
+            const e = document.getElementById('loginEmail').value;
+            const p = document.getElementById('loginPass').value;
+            const save = document.getElementById('saveLogin').checked;
+
+            try {
+                await signInWithEmailAndPassword(auth, e, p);
+                
+                if (save) {
+                    localStorage.setItem('cs2_admin_user', e);
+                    localStorage.setItem('cs2_admin_pass', btoa(p)); 
+                } else {
+                    localStorage.removeItem('cs2_admin_user');
+                    localStorage.removeItem('cs2_admin_pass');
                 }
-                f(0, []);
-                return result;
-            };
 
-            const target = pool.reduce((a, b) => a + Number(b.rating), 0) / 2;
-            const combos = getCombos(pool, 5);
-            
-            // Find best diff
-            combos.sort((a, b) => {
-                const sumA = a.reduce((s, p) => s + Number(p.rating), 0);
-                const sumB = b.reduce((s, p) => s + Number(p.rating), 0);
-                const diffA = Math.abs(target - sumA);
-                const diffB = Math.abs(target - sumB);
-                return diffA - diffB;
-            });
+                showToast("Login de Admin realizado!", "success");
+                toggleIsland('login'); // Close island
+            } catch(err) { showToast("Login falhou", "error"); }
+        };
 
-            // Select top candidate (or random from top 5 for variety)
-            const selectedA = combos[0];
-            const selectedB = pool.filter(p => !selectedA.some(sa => sa.id === p.id));
+        window.handleLogout = async () => {
+            await signOut(auth);
+            showToast("Desconectado", "success");
+        };
 
-            saveMatch(selectedA, selectedB, reserves);
-        }
-        
-        async function performAiBalance(pool, reserves) {
-            try {
-                if (!globalConfig.apiKey) throw new Error("Chave de API não configurada.");
-                
-                const promptText = `
-                Divide these 10 players into two balanced 5v5 teams for CS2.
-                Minimize rating difference between teams.
-                Players: ${pool.map(p => `{"id":"${p.id}","rating":${p.rating}}`).join(',')}
-                Output JSON ONLY: {"teamA_ids": ["id1"...], "teamB_ids": ["id6"...]}
-                `;
-
-                const response = await fetchAi(promptText, true);
-                let jsonStr = response.replace(/```json/g, '').replace(/```/g, '').trim();
-                const json = JSON.parse(jsonStr);
-                
-                const teamA = pool.filter(p => json.teamA_ids.includes(p.id));
-                const teamB = pool.filter(p => json.teamB_ids.includes(p.id));
-                
-                if (teamA.length !== 5 || teamB.length !== 5) throw new Error("IA retornou times inválidos");
-                
-                saveMatch(teamA, teamB, reserves);
-                
-            } catch (e) {
-                console.error(e);
-                showToast("Erro na IA, usando matemático.");
-                performMathBalance(pool, reserves);
-            }
-        }
-        
-        async function callAiCoach() {
-            if (!currentMatch?.teamA?.length) return showToast("Gere os times primeiro!");
-            if (currentMatch.analysis) {
-                 const content = document.getElementById('aiContent');
-                 content.innerHTML = `<div class="prose prose-invert max-w-none text-sm">${marked.parse(currentMatch.analysis)}</div>`;
-                 toggleModal('aiModal', true);
-                 return;
-            }
-            
-            const btnText = document.getElementById('coachBtnText');
-            const original = btnText.innerHTML;
-            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analisando...';
-            
-            try {
-                const tA = currentMatch.teamA;
-                const tB = currentMatch.teamB;
-                const prompt = `Coach CS2. Analise os times:
-                Time A: ${tA.map(p=>`${p.name} (${p.rating})`).join(', ')}
-                Time B: ${tB.map(p=>`${p.name} (${p.rating})`).join(', ')}
-                1. Probabilidade vitoria %
-                2. Dica tática
-                3. Comentário engraçado sobre o balanceamento.
-                Use markdown.`;
-                
-                const response = await fetchAi(prompt, false);
-                await updateDoc(doc(db, 'matches', 'current'), { analysis: response });
-            } catch(e) {
-                showToast("Erro ao analisar.");
-            } finally {
-                btnText.innerHTML = original;
-            }
-        }
-
-        async function fetchAi(prompt, jsonMode) {
-             const isGroq = globalConfig.provider === 'groq';
-             let url, body, headers = { 'Content-Type': 'application/json' };
-             
-             if (isGroq) {
-                 url = 'https://api.groq.com/openai/v1/chat/completions';
-                 headers['Authorization'] = `Bearer ${globalConfig.apiKey}`;
-                 body = JSON.stringify({
-                     model: "llama-3.3-70b-versatile",
-                     messages: [{ role: "user", content: prompt }],
-                     response_format: jsonMode ? { type: "json_object" } : { type: "text" }
-                 });
-             } else {
-                 url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${globalConfig.apiKey}`;
-                 body = JSON.stringify({
-                     contents: [{ parts: [{ text: prompt }] }],
-                     generationConfig: { responseMimeType: jsonMode ? "application/json" : "text/plain" }
-                 });
-             }
-             
-             const res = await fetch(url, { method: 'POST', headers, body });
-             if(!res.ok) throw new Error("API Error");
-             const data = await res.json();
-             
-             if (isGroq) return data.choices[0].message.content;
-             return data.candidates[0].content.parts[0].text;
-        }
-
-        async function saveMatch(teamA, teamB, reserves) {
-            await setDoc(doc(db, 'matches', 'current'), {
-                teamA, teamB, reserves, timestamp: new Date().toISOString(), analysis: null
-            });
-            document.getElementById('loadingModal').classList.add('hidden');
-            document.getElementById('loadingModal').classList.remove('flex');
-        }
-
-        // --- CONFIG & LOGIN ---
-        window.saveConfig = async function() {
-            if(!isAdmin) return showToast("Apenas admin pode salvar.");
+        window.saveGlobalConfig = async () => {
+            if(!state.isAdmin) return;
             
             const updates = {
-                apiKey: document.getElementById('cfgApiKey').value.trim(),
-                provider: document.getElementById('aiProvider').value,
-                copyTitle: document.getElementById('cfgCopyTitle').value.trim(),
-                copyFooter: document.getElementById('cfgCopyFooter').value.trim(),
-                aiBalanceEnabled: document.getElementById('flagAiBalance').checked,
-                aiCoachEnabled: document.getElementById('flagAiCoach').checked
-            };
-            
-            // Firebase Config Local
-            const fbConfig = {
-                apiKey: document.getElementById('fbApiKey').value.trim()
-                // Add other fields if needed for full custom config
-            };
-            if(fbConfig.apiKey) localStorage.setItem('cs2_firebase_conf', JSON.stringify(fbConfig));
-
-            await setDoc(doc(collection(db, 'config'), 'global'), updates, { merge: true });
-            closeConfigModal();
-            showToast("Configurações salvas!");
-        }
-
-        window.performLogout = async function() {
-            await signOut(auth);
-            await signInAnonymously(auth);
-            showToast("Saiu com sucesso.");
-        }
-
-        window.checkLogin = async function() {
-            const u = document.getElementById('adminUser').value;
-            const p = document.getElementById('adminPass').value;
-            const remember = document.getElementById('rememberMe').checked;
-            const email = u.includes('@') ? u : `${u}@cs2mix.com`;
-            
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                await signInWithEmailAndPassword(auth, email, p);
-                
-                if(remember) {
-                    localStorage.setItem('cs2_user', u);
-                    localStorage.setItem('cs2_pass', p);
-                } else {
-                    localStorage.removeItem('cs2_user');
-                    localStorage.removeItem('cs2_pass');
+                aiBalance: document.getElementById('cfgAiBalance').checked,
+                aiCoach: document.getElementById('cfgAiCoach').checked,
+                apiKey: document.getElementById('cfgAiKey').value,
+                copyTitle: document.getElementById('cfgCopyTitle').value,
+                copyFooter: document.getElementById('cfgCopyFooter').value,
+                permissions: {
+                    add: document.getElementById('permAdd').checked,
+                    edit: document.getElementById('permEdit').checked,
+                    del: document.getElementById('permDel').checked,
+                    balance: document.getElementById('permBalance').checked,
+                    clear: document.getElementById('permClear').checked
                 }
-                
-                closeLoginModal();
-                showToast("Login realizado!");
-            } catch(e) { console.error(e); showToast("Erro no login: " + e.code); }
-        }
+            };
 
-        // --- HELPERS ---
-        // Modals
-        window.openLoginModal = () => {
-             // Prefill
-             const u = localStorage.getItem('cs2_user');
-             if(u) {
-                 document.getElementById('adminUser').value = u;
-                 document.getElementById('rememberMe').checked = true;
-             }
-             toggleModal('loginModal', true);
+            await setDoc(doc(db, 'config', 'global'), updates, { merge: true });
+            closeModal('configModal');
+            showToast("Configurações salvas", "success");
         };
-        window.closeLoginModal = () => toggleModal('loginModal', false);
-        
-        window.openConfigModal = () => toggleModal('configModal', true);
-        window.closeConfigModal = () => toggleModal('configModal', false);
 
-        window.openJoinModal = (p) => {
-             // Reset or Fill
-             document.getElementById('editPlayerId').value = p ? p.id : '';
-             document.getElementById('inputName').value = p ? p.name : '';
-             document.getElementById('inputUrl').value = p ? p.url : '';
-             document.getElementById('inputRating').value = p ? p.rating : '';
-             document.getElementById('modalTitle').innerText = p ? "Editar" : "Adicionar";
-             toggleModal('joinModal', true);
-        }
-        window.closeJoinModal = () => toggleModal('joinModal', false);
+        window.clearLocalStorage = () => {
+            localStorage.removeItem('cs2_fb_config');
+            location.reload();
+        };
 
-        window.openHelpModal = () => toggleModal('helpModal', true);
-        window.closeHelpModal = () => toggleModal('helpModal', false);
-
-        window.showConfirm = (msg, cb) => {
-            document.getElementById('confirmMessage').innerText = msg;
-            confirmCallback = cb;
-            toggleModal('confirmModal', true);
-        }
-        window.closeConfirmModal = () => toggleModal('confirmModal', false);
-        window.confirmCallback = null;
-        document.getElementById('btnConfirmYes').onclick = () => { if(confirmCallback) confirmCallback(); closeConfirmModal(); };
-
-        window.closeAiModal = () => toggleModal('aiModal', false);
-
-        function toggleModal(id, show) {
-            const el = document.getElementById(id);
-            if(show) {
-                el.classList.remove('hidden');
-                if(id === 'loginModal') el.classList.add('dynamic-island-enter-active');
-                else el.classList.add('flex');
-            } else {
-                el.classList.add('hidden');
-                el.classList.remove('flex');
-            }
-        }
-
-        window.attemptOpenConfig = () => isAdmin ? openConfigModal() : openLoginModal();
-        window.toggleAiSelect = () => {
-             const chk = document.getElementById('useAiToggle');
-             document.getElementById('aiSelectContainer').className = chk.checked ? 'block' : 'hidden';
-        }
-        window.updateTooltipPreview = () => {
-             const t = getCopyText();
-             document.getElementById('copyPreview').innerText = t || "Gere os times...";
-        }
-
-        function getCopyText() {
-            if(!currentMatch?.teamA?.length) return "";
-            const tA = currentMatch.teamA.map(p => p.name).join('\n');
-            const tB = currentMatch.teamB.map(p => p.name).join('\n');
-            const avgA = currentMatch.teamA.reduce((a,b)=>a+Number(b.rating),0)/5;
-            const avgB = currentMatch.teamB.reduce((a,b)=>a+Number(b.rating),0)/5;
-            
-            let res = "";
-            if(currentMatch.reserves?.length) {
-                res = "\n🛑 RESERVAS:\n" + currentMatch.reserves.map(p => p.name).join(', ');
-            }
-
-            return `${globalConfig.copyTitle}\n\n🔵 TIME A (${avgA.toFixed(2)})\n${tA}\n\n🟠 TIME B (${avgB.toFixed(2)})\n${tB}${res}\n\n${globalConfig.copyFooter}`;
-        }
-
-        window.copyTeams = () => {
-            const txt = getCopyText();
-            if(!txt) return showToast("Nada para copiar.");
-            navigator.clipboard.writeText(txt);
-            
-            const btn = document.getElementById('copyBtn');
-            const oldHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i> COPIADO!';
-            btn.classList.add('bg-green-600', 'border-green-500');
+        // --- DYNAMIC ISLANDS & MODALS ---
+        window.openModal = (id) => {
+            const m = document.getElementById(id);
+            m.classList.remove('hidden');
             setTimeout(() => {
-                btn.innerHTML = oldHtml;
-                btn.classList.remove('bg-green-600', 'border-green-500');
-            }, 2000);
-        }
+                m.classList.remove('backdrop-blur-sm'); 
+                m.classList.add('backdrop-blur-sm');
+                m.querySelector('.modal-content').classList.remove('scale-95', 'opacity-0');
+                m.querySelector('.modal-content').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        window.closeModal = (id) => {
+            const m = document.getElementById(id);
+            m.querySelector('.modal-content').classList.remove('scale-100', 'opacity-100');
+            m.querySelector('.modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => m.classList.add('hidden'), 200);
+        };
         
-        // Expose to window for HTML onclicks
-        window.callAiCoach = callAiCoach;
+        window.toggleHelpView = (show) => {
+            if(show) {
+                document.getElementById('playerHelpView').classList.remove('hidden');
+            } else {
+                document.getElementById('playerHelpView').classList.add('hidden');
+            }
+        };
 
-        // --- IDLE TIMER ---
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            if(isAdmin) idleTimer = setTimeout(() => performLogout(true), 3600000);
+        window.toggleIsland = (type) => {
+            // Close all first
+            const loginIsland = document.getElementById('islandLogin');
+            const copyIsland = document.getElementById('islandCopy');
+            
+            if(type === 'login') {
+                copyIsland.classList.remove('active');
+                loginIsland.classList.toggle('active');
+            } else if(type === 'copy') {
+                loginIsland.classList.remove('active');
+                copyIsland.classList.toggle('active');
+            } else {
+                loginIsland.classList.remove('active');
+                copyIsland.classList.remove('active');
+            }
+        };
+
+        window.openConfig = () => {
+            openModal('configModal');
+            updateConfigUi();
+        };
+
+        window.toggleAiOptions = () => {
+             const chk = document.getElementById('aiToggle');
+             const sel = document.getElementById('aiProviderSelect');
+             if(chk.checked) {
+                 document.getElementById('aiLabel').innerText = "IA (Ativa)";
+                 sel.classList.remove('hidden');
+             } else {
+                 document.getElementById('aiLabel').innerText = "IA (Inativa)";
+                 sel.classList.add('hidden');
+             }
+        };
+
+        window.animateRefresh = () => {
+             const icon = document.getElementById('refreshIcon');
+             icon.classList.add('fa-spin');
+             setTimeout(() => icon.classList.remove('fa-spin'), 1000);
+        };
+
+        window.showToast = (msg, type = 'info') => {
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            const colors = type === 'error' ? 'bg-red-600' : (type === 'success' ? 'bg-emerald-600' : 'bg-blue-600');
+            const icon = type === 'error' ? 'exclamation-circle' : (type === 'success' ? 'check-circle' : 'info-circle');
+            
+            el.className = `${colors} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 text-xs font-bold pointer-events-auto toast-enter`;
+            el.innerHTML = `<i class="fas fa-${icon}"></i> <span>${msg}</span>`;
+            
+            container.appendChild(el);
+            
+            requestAnimationFrame(() => el.classList.add('toast-enter-active'));
+            requestAnimationFrame(() => el.classList.remove('toast-enter'));
+            
+            setTimeout(() => {
+                el.classList.add('toast-exit-active');
+                setTimeout(() => el.remove(), 300);
+            }, 3000);
+        };
+
+        // --- COPY LOGIC ---
+        window.prepareCopy = () => {
+            if (!state.match || !state.match.teamA) return showToast("Nada para copiar", "error");
+            
+            const { teamA, teamB, reserves } = state.match;
+            const avgA = teamA.reduce((a,b)=>a+Number(b.rating),0)/5;
+            const avgB = teamB.reduce((a,b)=>a+Number(b.rating),0)/5;
+            
+            const tA = teamA.map(p => `> 👮 *${p.name}* (${p.rating})`).join('\n');
+            const tB = teamB.map(p => `> 🏴‍☠️ *${p.name}* (${p.rating})`).join('\n');
+            let resTxt = "";
+            if (reserves && reserves.length) resTxt = `\n\n🛑 **RESERVAS:**\n` + reserves.map(p => p.name).join(', ');
+
+            const text = `${state.config.copyTitle || '**CS2 MIX**'}\n\n🔵 **TIME A** (Avg: ${avgA.toFixed(2)})\n${tA}\n\n🟠 **TIME B** (Avg: ${avgB.toFixed(2)})\n${tB}${resTxt}\n\n${state.config.copyFooter || ''}`;
+
+            document.getElementById('copyPreviewText').innerText = text;
+            toggleIsland('copy');
+        };
+
+        window.confirmCopy = () => {
+            const text = document.getElementById('copyPreviewText').innerText;
+            
+            const copySuccess = () => {
+                showToast("Texto copiado!", "success");
+                toggleIsland(null); // Close
+            };
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(copySuccess).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        };
+
+        function fallbackCopy(text) {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed"; ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.focus(); ta.select();
+            try {
+                document.execCommand('copy');
+                showToast("Texto copiado (Fallback)!", "success");
+                toggleIsland(null);
+            } catch (err) {
+                showToast("Erro ao copiar", "error");
+            }
+            document.body.removeChild(ta);
         }
 
-        init();
+        // Run
+        initApp();
     </script>
 </body>
 </html>
-
-
