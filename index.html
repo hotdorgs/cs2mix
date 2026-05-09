@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+<!-- <base href="/cs2mix/"> -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,16 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     
     <script>
         tailwind.config = {
@@ -20,11 +26,54 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         display: ['Rajdhani', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        dark: { 900: '#0b0f19', 800: '#101623', 700: '#1a2236' },
-                        ct: '#4b69ff',
-                        tr: '#eb9e34'
+                        dark: { 900: '#030303', 800: '#0a0a0a', 700: '#121212' },
+                        tech: {
+                            black: '#030303',
+                            dark: '#0a0a0a',
+                            card: '#121212',
+                            blue: '#0070f3',
+                            cyan: '#00d4ff',
+                            purple: '#7928ca',
+                            magenta: '#ff0080',
+                            text: '#fdfdfd',
+                            muted: '#a1a1aa'
+                        },
+                        ct: '#00d4ff',
+                        tr: '#ff0080'
+                    },
+                    animation: {
+                        'fadeInUp': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'pulseGlow1': 'pulseGlow1 20s ease-in-out infinite',
+                        'pulseGlow2': 'pulseGlow2 25s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px) scale(0.98)' },
+                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(0, 112, 243, 0.2)' },
+                            '100%': { boxShadow: '0 0 20px rgba(0, 112, 243, 0.6)' }
+                        },
+                        pulseGlow1: {
+                            '0%, 100%': { transform: 'translate(0, 0) scale(1)', opacity: '0.7' },
+                            '33%': { transform: 'translate(15%, 10%) scale(1.2)', opacity: '0.9' },
+                            '66%': { transform: 'translate(-10%, 15%) scale(0.9)', opacity: '0.6' }
+                        },
+                        pulseGlow2: {
+                            '0%, 100%': { transform: 'translate(0, 0) scale(1)', opacity: '0.6' },
+                            '33%': { transform: 'translate(-15%, -10%) scale(1.1)', opacity: '0.8' },
+                            '66%': { transform: 'translate(10%, -15%) scale(0.95)', opacity: '0.5' }
+                        }
                     }
                 }
             }
@@ -33,32 +82,82 @@
 
     <style>
         body {
-            background-color: #0b0f19;
-            color: #f1f5f9;
-            background-image: radial-gradient(circle at 50% 0%, #1a2236 0%, #0b0f19 70%);
+            background-color: #030303;
+            color: #fdfdfd;
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 112, 243, 0.15) 0%, #030303 70%);
             min-height: 100vh;
+            position: relative;
+        }
+
+        /* Atmospheric Glows */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(0, 112, 243, 0.25) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: pulseGlow1 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -10%;
+            right: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: pulseGlow2 25s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
         }
         
         .glass-panel {
-            background: rgba(16, 22, 35, 0.7);
-            backdrop-filter: blur(12px);
+            background: rgba(15, 15, 15, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
         }
 
         .glass-header {
-            background: rgba(11, 15, 25, 0.85);
-            backdrop-filter: blur(10px);
+            background: rgba(3, 3, 3, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 50;
+        }
+
+        /* Noise Overlay */
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1;
         }
 
         .btn-primary { 
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            background: linear-gradient(135deg, #0070f3 0%, #00d4ff 100%); 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
         }
         .btn-primary:hover:not(:disabled) { 
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); 
-            transform: translateY(-1px); 
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6); 
+        }
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
         }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 
@@ -67,9 +166,69 @@
             50% { opacity: 0.6; box-shadow: 0 0 10px currentColor; } 
         }
         .animate-status { animation: pulse-glow 2s infinite; }
+
+        @keyframes pulseGlow1 {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.7;
+            }
+            33% {
+                transform: translate(15%, 10%) scale(1.2);
+                opacity: 0.9;
+            }
+            66% {
+                transform: translate(-10%, 15%) scale(0.9);
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes pulseGlow2 {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.6;
+            }
+            33% {
+                transform: translate(-15%, -10%) scale(1.1);
+                opacity: 0.8;
+            }
+            66% {
+                transform: translate(10%, -15%) scale(0.95);
+                opacity: 0.5;
+            }
+        }
         
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loader { border: 2px solid rgba(255,255,255,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; }
+
+        /* Premium Keyframe Animations */
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px rgba(0, 112, 243, 0.2);
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(0, 112, 243, 0.6);
+            }
+        }
 
         /* Dynamic Island - Login Positioning */
         .login-dropdown {
@@ -134,11 +293,42 @@
         .toast-exit-active { transform: translateX(100%); opacity: 0; transition: all 0.3s ease-in; }
 
         .prose strong { color: #fff; font-weight: 700; }
-        .prose p { margin-bottom: 0.5rem; color: #cbd5e1; }
+        .prose p { margin-bottom: 0.5rem; color: #a1a1aa; }
         .ai-disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+
+        /* Gradient Border Glow */
+        .glow-border {
+            position: relative;
+        }
+
+        .glow-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 2px;
+            background: linear-gradient(135deg, 
+                rgba(0, 112, 243, 0.5), 
+                rgba(0, 212, 255, 0.5), 
+                rgba(121, 40, 202, 0.3)
+            );
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .glow-border:hover::before {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="flex flex-col selection:bg-blue-500 selection:text-white overflow-x-hidden">
+
+    <!-- Noise Overlay -->
+    <div class="noise-overlay"></div>
 
     <!-- Navbar -->
     <nav class="glass-header sticky top-0 w-full z-50">
@@ -147,11 +337,11 @@
             <div class="flex items-center gap-3">
                 <div class="relative group cursor-pointer">
                     <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-50 group-hover:opacity-100 blur transition duration-500"></div>
-                    <img src="Hot Dorgs.jpg" onerror="this.src='https://ui-avatars.com/api/?name=HD&background=1e293b&color=fff'" alt="Logo" class="relative w-10 h-10 rounded-full border border-white/10 object-cover shadow-lg">
+                    <img src="./Hot Dorgs.jpg" onerror="this.src='https://ui-avatars.com/api/?name=HD&background=1e293b&color=fff'" alt="Logo" class="relative w-10 h-10 rounded-full border border-white/10 object-cover shadow-lg">
                 </div>
                 <div class="flex flex-col">
-                    <h1 class="font-display font-bold text-lg tracking-tight leading-none text-white">MIX <span class="text-blue-500 uppercase">Balancer</span></h1>
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Powered by Hotdorgs</p>
+                    <h1 class="font-display font-bold text-xl tracking-tight leading-none text-white uppercase">MIX <span class="text-blue-500">Balancer</span></h1>
+                    <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest">Powered by Hotdorgs</p>
                 </div>
             </div>
 
@@ -160,7 +350,7 @@
                 <!-- Status -->
                 <div class="hidden sm:flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full border border-white/5 shadow-inner">
                     <div id="statusLed" class="w-2 h-2 rounded-full bg-slate-600 transition-colors duration-500"></div>
-                    <span id="statusLabel" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Conectando...</span>
+                    <span id="statusLabel" class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Conectando...</span>
                 </div>
                 
                 <!-- Auth Container -->
@@ -224,7 +414,7 @@
     </div>
 
     <!-- Main Content -->
-    <main class="flex-grow pt-8 pb-10 px-4 w-full max-w-7xl mx-auto">
+    <main class="flex-grow pt-8 pb-10 px-4 w-full max-w-7xl mx-auto relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             
             <!-- Left: Lobby -->
@@ -234,7 +424,7 @@
 
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 relative z-10">
                         <div>
-                            <h2 class="text-2xl font-display font-bold text-white flex items-center gap-2">
+                            <h2 class="text-3xl md:text-4xl font-display font-black text-white flex items-center gap-2 uppercase tracking-tight">
                                 <i class="fas fa-users text-blue-500"></i> LOBBY
                                 <span class="bg-slate-800 text-slate-300 text-xs px-2 py-0.5 rounded-full border border-slate-700 font-mono ml-2">
                                     <span id="countDisplay">0</span>/10
@@ -293,22 +483,22 @@
             <div class="lg:col-span-4 h-full">
                 <div id="placeholderResult" class="glass-panel rounded-2xl p-8 flex flex-col items-center justify-center text-center h-full min-h-[400px] border-dashed">
                     <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4 text-slate-600"><i class="fas fa-gamepad text-2xl"></i></div>
-                    <h3 class="text-lg font-bold text-slate-300">Aguardando Sorteio</h3>
+                    <h3 class="text-lg font-bold text-slate-300 uppercase tracking-wide">Aguardando Sorteio</h3>
                     <p class="text-sm text-slate-500 mt-2 max-w-[200px]">Adicione 10 jogadores e clique em equilibrar.</p>
                 </div>
 
                 <div id="resultsArea" class="hidden space-y-4">
                     <div class="flex justify-between items-end mb-2 px-1">
-                        <h3 class="text-lg font-display font-bold text-white">MATCHUP</h3>
+                        <h3 class="text-3xl md:text-4xl font-display font-black text-white uppercase tracking-tight">MATCHUP</h3>
                         <span id="diffBadge" class="text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Diff: 0.00</span>
                     </div>
 
                     <!-- Time A -->
-                    <div class="glass-panel rounded-xl overflow-hidden border-l-4 border-l-ct shadow-lg relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    <div class="glass-panel glow-border rounded-xl overflow-hidden border-l-4 shadow-lg relative group transition-all duration-600" style="border-left-color: #00d4ff;">
+                        <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none"></div>
                         <div class="bg-slate-900/50 p-3 flex justify-between items-center border-b border-white/5">
-                            <span class="font-bold text-blue-400 text-xs tracking-widest uppercase">Time A</span>
-                            <span id="avgA" class="text-[10px] font-mono bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded border border-blue-500/20">Avg: 0.00</span>
+                            <span class="font-bold text-xs tracking-widest uppercase" style="color: #00d4ff;">Time A</span>
+                            <span id="avgA" class="text-[10px] font-mono px-2 py-0.5 rounded border" style="background-color: rgba(0, 212, 255, 0.1); color: #00d4ff; border-color: rgba(0, 212, 255, 0.2);">Avg: 0.00</span>
                         </div>
                         <div id="listA" class="p-1"></div>
                     </div>
@@ -319,17 +509,17 @@
                     </div>
 
                     <!-- Time B -->
-                    <div class="glass-panel rounded-xl overflow-hidden border-l-4 border-l-tr shadow-lg relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    <div class="glass-panel glow-border rounded-xl overflow-hidden border-l-4 shadow-lg relative group transition-all duration-600" style="border-left-color: #ff0080;">
+                        <div class="absolute inset-0 bg-gradient-to-r from-pink-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none"></div>
                         <div class="bg-slate-900/50 p-3 flex justify-between items-center border-b border-white/5">
-                            <span class="font-bold text-orange-400 text-xs tracking-widest uppercase">Time B</span>
-                            <span id="avgB" class="text-[10px] font-mono bg-orange-500/10 text-orange-300 px-2 py-0.5 rounded border border-orange-500/20">Avg: 0.00</span>
+                            <span class="font-bold text-xs tracking-widest uppercase" style="color: #ff0080;">Time B</span>
+                            <span id="avgB" class="text-[10px] font-mono px-2 py-0.5 rounded border" style="background-color: rgba(255, 0, 128, 0.1); color: #ff0080; border-color: rgba(255, 0, 128, 0.2);">Avg: 0.00</span>
                         </div>
                         <div id="listB" class="p-1"></div>
                     </div>
 
                     <div id="reservesBox" class="hidden glass-panel rounded-xl p-3 border border-slate-700/50 bg-black/20">
-                        <div class="text-[10px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-2"><i class="fas fa-chair"></i> Reservas / Próximos</div>
+                        <div class="text-[11px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-2 tracking-wider"><i class="fas fa-chair"></i> Reservas / Próximos</div>
                         <div id="listReserves" class="flex flex-wrap gap-2"></div>
                     </div>
 
@@ -353,10 +543,10 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800/50 py-6 mt-auto bg-[#0b0f19]">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center text-[10px] text-slate-600 uppercase tracking-wider">
+    <footer class="border-t border-slate-800/50 py-6 mt-auto bg-[#030303] relative z-10">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center text-[11px] text-slate-600 uppercase tracking-widest">
             <span>&copy; 2026 CS2 Mix Balancer</span>
-            <span class="flex items-center gap-2"><img src="Hot Dorgs.jpg" onerror="this.src='https://ui-avatars.com/api/?name=HD&background=1e293b&color=fff'" class="w-6 h-6 rounded-full grayscale opacity-50" alt="HD"><span>hotdorgs Production</span></span>
+            <span class="flex items-center gap-2"><img src="./Hot Dorgs.jpg" onerror="this.src='https://ui-avatars.com/api/?name=HD&background=1e293b&color=fff'" class="w-6 h-6 rounded-full grayscale opacity-50" alt="HD"><span>hotdorgs Production</span></span>
         </div>
     </footer>
 
@@ -374,14 +564,14 @@
     <div id="configModal" class="hidden fixed inset-0 bg-black/80 z-[100] items-center justify-center backdrop-blur-sm p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
             <div class="bg-slate-800/50 p-4 border-b border-slate-700 flex justify-between items-center">
-                <h3 class="text-white font-bold"><i class="fas fa-cog text-slate-400 mr-2"></i> Configurações</h3>
+                <h3 class="text-white font-bold uppercase tracking-wide"><i class="fas fa-cog text-slate-400 mr-2"></i> Configurações</h3>
                 <button onclick="closeModal('configModal')" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
                 
                 <!-- Permissões Globais (Visitantes) -->
                 <div>
-                    <h4 class="text-xs font-bold text-emerald-400 uppercase mb-3">Permissões de Usuário (Público)</h4>
+                    <h4 class="text-xs font-bold text-emerald-400 uppercase mb-3 tracking-wider">Permissões de Usuário (Público)</h4>
                     <div class="grid grid-cols-2 gap-3 bg-black/20 p-3 rounded-lg border border-slate-700/50">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" id="permAdd" class="accent-emerald-500 rounded">
@@ -408,7 +598,7 @@
 
                 <!-- Beta Features -->
                 <div>
-                    <h4 class="text-xs font-bold text-purple-400 uppercase mb-3">Funcionalidades Beta (IA)</h4>
+                    <h4 class="text-xs font-bold text-purple-400 uppercase mb-3 tracking-wider">Funcionalidades Beta (IA)</h4>
                     <div class="space-y-3 bg-black/20 p-3 rounded-lg border border-slate-700/50">
                         <label class="flex items-center justify-between cursor-pointer group">
                             <span class="text-sm text-slate-300">Habilitar Balanceamento IA</span>
@@ -423,7 +613,7 @@
 
                 <!-- Text Config -->
                 <div>
-                    <h4 class="text-xs font-bold text-blue-400 uppercase mb-3">Textos</h4>
+                    <h4 class="text-xs font-bold text-blue-400 uppercase mb-3 tracking-wider">Textos</h4>
                     <div class="space-y-3">
                         <input type="text" id="cfgCopyTitle" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" placeholder="Título da Cópia">
                         <input type="text" id="cfgCopyFooter" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white" placeholder="Rodapé da Cópia">
@@ -432,10 +622,10 @@
 
                 <!-- API Keys -->
                 <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">API Keys (Segredo)</h4>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 tracking-wider">API Keys (Segredo)</h4>
                     <div class="space-y-3">
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase font-bold block mb-1">Provedor Ativo</label>
+                            <label class="text-[11px] text-slate-500 uppercase font-bold block mb-1 tracking-wider">Provedor Ativo</label>
                             <select id="aiProvider" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
                                 <option value="gemini">Google Gemini</option>
                                 <option value="groq">Groq Cloud</option>
@@ -446,7 +636,7 @@
                         
                         <!-- Leetify Token Field -->
                         <div class="relative">
-                             <label class="text-[10px] text-emerald-500 uppercase font-bold block mb-1">Leetify Integration</label>
+                             <label class="text-[11px] text-emerald-500 uppercase font-bold block mb-1 tracking-wider">Leetify Integration</label>
                              <input type="password" id="cfgLeetifyKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white transition hover:border-emerald-500 focus:border-emerald-500 outline-none" placeholder="Leetify API Token">
                              <p class="text-[9px] text-slate-500 mt-1">* A chave do Leetify será pública para permitir updates dos visitantes.</p>
                         </div>
@@ -455,7 +645,7 @@
                 
                 <!-- Firebase Local -->
                 <div class="pt-4 border-t border-slate-700">
-                    <h4 class="text-xs font-bold text-orange-400 uppercase mb-3">Conexão</h4>
+                    <h4 class="text-xs font-bold text-orange-400 uppercase mb-3 tracking-wider">Conexão</h4>
                     <input type="text" id="fbApiKey" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white" placeholder="Firebase API Key (Opcional)">
                     <div class="mt-2 text-right"><button onclick="clearLocalStorage()" class="text-xs text-red-500 hover:text-red-400 underline">Resetar Local</button></div>
                 </div>
@@ -473,7 +663,7 @@
             <!-- Form View -->
             <div id="playerFormView" class="w-full h-full">
                 <div class="p-5 border-b border-slate-800 flex justify-between items-center">
-                    <h3 class="text-white font-bold text-sm uppercase tracking-wide flex items-center gap-2">
+                    <h3 class="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">
                         <i class="fas fa-user-plus text-blue-500"></i> <span id="modalTitle">Adicionar Jogador</span>
                     </h3>
                     <button onclick="closeModal('playerModal')" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
@@ -481,7 +671,7 @@
                 <div class="p-5 space-y-4">
                     <input type="hidden" id="playerId">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nickname</label>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nickname</label>
                         <input type="text" id="inputName" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 outline-none mt-1 placeholder-slate-700">
                     </div>
                     <div>
@@ -811,7 +1001,7 @@
             list.innerHTML = players.map(pl => {
                 const hasError = playerErrors[pl.id];
                 // Changed: No longer adding border-red-500 to the container
-                const containerClass = 'glass-panel p-3 rounded-xl flex justify-between items-center group hover:bg-slate-800/60 transition relative overflow-hidden border border-white/5';
+                const containerClass = 'glass-panel glow-border p-3 rounded-xl flex justify-between items-center group hover:bg-slate-800/60 transition relative overflow-hidden border border-white/5';
                 
                 return `
                 <div id="card-${pl.id}" class="${containerClass}">
@@ -1504,6 +1694,26 @@
                 copyIsland?.classList.remove('active');
             }
         };
+
+        // Initialize Lenis Smooth Scroll
+        const lenis = new Lenis({
+            duration: 1.5,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
 
         init();
     </script>
