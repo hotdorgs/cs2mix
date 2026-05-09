@@ -1,4 +1,4 @@
-🔫 CS2 Mix Balancer - Hotdorgs Edition
+🔫 CS2 Mix Balancer - Hotdorgs Edition 
 
 Um organizador de partidas (Mix/Scrim) para Counter-Strike 2 focado em equilíbrio matemático e inteligência artificial. Desenvolvido para garantir partidas justas baseadas no Rating do Leetify, com suporte a multiplayer em tempo real.
 
